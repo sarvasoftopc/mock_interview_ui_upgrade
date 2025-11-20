@@ -20,6 +20,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   int _selectedNavIndex = 0;
+  String _analysisMode = 'jd'; // 'jd' or 'role'
+  String? _selectedRole;
+
+  final List<String> _roles = [
+    'Frontend Developer',
+    'Backend Developer',
+    'Fullstack Developer',
+    'Data Scientist',
+    'Product Manager',
+    'QA Engineer',
+    'DevOps Engineer',
+    'Mobile Developer',
+  ];
 
   @override
   void initState() {
@@ -49,7 +62,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       drawer: const AppDrawer(),
       appBar: CustomAppBar(
         context: context,
-        titleText: 'Capabily'
+        titleText: 'Capabily',
+        backgroundColor: Colors.white,
       ),
       body: LoadingOverlay(
         isLoading: cvJdProvider.loading,
@@ -107,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                   const SizedBox(height: AppTheme.space8),
 
-                  // Features Section
+                  // Features Grid
                   _buildFeaturesSection(context, isWide, isTablet),
 
                   const SizedBox(height: AppTheme.space10),
@@ -189,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            if (isWide) ...[
+            if (isWide) ..[
               const SizedBox(width: AppTheme.space8),
               Container(
                 width: 280,
@@ -270,8 +284,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'Interview Modes',
-            subtitle: 'Choose your practice style',
+            title: 'Choose Your Interview Mode',
+            subtitle: 'Select how you want to practice',
           ),
           const SizedBox(height: AppTheme.space4),
           _InterviewModeCard(
@@ -312,10 +326,43 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'CV & JD Analysis',
-            subtitle: 'AI-powered skill matching',
+            title: 'Smart Analysis',
+            subtitle: 'Compare your CV against job requirements or roles',
           ),
           const SizedBox(height: AppTheme.space4),
+          
+          // Mode Selector
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppTheme.backgroundGray,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _ModeButton(
+                    label: 'CV vs JD',
+                    icon: Icons.description,
+                    isSelected: _analysisMode == 'jd',
+                    onTap: () => setState(() => _analysisMode = 'jd'),
+                  ),
+                ),
+                Expanded(
+                  child: _ModeButton(
+                    label: 'CV vs Role',
+                    icon: Icons.work,
+                    isSelected: _analysisMode == 'role',
+                    onTap: () => setState(() => _analysisMode = 'role'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: AppTheme.space4),
+          
+          // Info Box
           Container(
             padding: const EdgeInsets.all(AppTheme.space4),
             decoration: BoxDecoration(
@@ -334,48 +381,107 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 const SizedBox(width: AppTheme.space3),
                 Expanded(
                   child: Text(
-                    'Upload your CV and job description to get personalized questions',
+                    _analysisMode == 'jd'
+                        ? 'Upload your CV and job description to get personalized questions'
+                        : 'Upload your CV and select a role to see how you match',
                     style: AppTheme.bodySmall,
                   ),
                 ),
               ],
             ),
           ),
+          
           const SizedBox(height: AppTheme.space4),
-          Row(
-            children: [
-              Expanded(
-                child: _UploadCard(
-                  icon: Icons.description,
-                  label: provider.cvText.isEmpty ? 'Upload CV' : 'CV Uploaded',
-                  isUploaded: provider.cvText.isNotEmpty,
-                  onTap: () => FileUtil.selectFile(context, true, provider),
-                ),
-              ),
-              const SizedBox(width: AppTheme.space3),
-              Expanded(
-                child: _UploadCard(
-                  icon: Icons.work,
-                  label: provider.jdText.isEmpty ? 'Upload JD' : 'JD Uploaded',
-                  isUploaded: provider.jdText.isNotEmpty,
-                  onTap: () => FileUtil.selectFile(context, false, provider),
-                ),
-              ),
-            ],
+          
+          // CV Upload (always shown)
+          _UploadCard(
+            icon: Icons.description,
+            label: provider.cvText.isEmpty ? 'Upload CV' : 'CV Uploaded',
+            isUploaded: provider.cvText.isNotEmpty,
+            onTap: () => FileUtil.selectFile(context, true, provider),
           ),
+          
+          const SizedBox(height: AppTheme.space3),
+          
+          // JD Upload or Role Selector
+          if (_analysisMode == 'jd')
+            _UploadCard(
+              icon: Icons.work,
+              label: provider.jdText.isEmpty ? 'Upload JD' : 'JD Uploaded',
+              isUploaded: provider.jdText.isNotEmpty,
+              onTap: () => FileUtil.selectFile(context, false, provider),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(AppTheme.space4),
+              decoration: BoxDecoration(
+                color: _selectedRole != null
+                    ? AppTheme.success.withOpacity(0.1)
+                    : AppTheme.backgroundGray,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(
+                  color: _selectedRole != null
+                      ? AppTheme.success
+                      : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: _selectedRole,
+                hint: Row(
+                  children: [
+                    Icon(
+                      Icons.work_outline,
+                      color: AppTheme.textSecondary,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Select Target Role'),
+                  ],
+                ),
+                items: _roles
+                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedRole = v),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+          
           const SizedBox(height: AppTheme.space4),
+          
+          // Analyze Button
           ModernButton(
             text: provider.loading ? 'Analyzing...' : 'Analyze Match',
             icon: Icons.analytics,
             isFullWidth: true,
             isLoading: provider.loading,
-            onPressed: (provider.cvText.isNotEmpty &&
-                    provider.jdText.isNotEmpty &&
-                    !provider.loading)
-                ? () => CvJDAnalysis().performSkillAnalysis(context, provider)
+            onPressed: (_analysisMode == 'jd'
+                    ? (provider.cvText.isNotEmpty &&
+                        provider.jdText.isNotEmpty &&
+                        !provider.loading)
+                    : (provider.cvText.isNotEmpty &&
+                        _selectedRole != null &&
+                        !provider.loading))
+                ? () {
+                    if (_analysisMode == 'jd') {
+                      CvJDAnalysis().performSkillAnalysis(context, provider);
+                    } else {
+                      // TODO: Implement CV vs Role analysis
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Analyzing CV against $_selectedRole role...'),
+                          backgroundColor: AppTheme.info,
+                        ),
+                      );
+                    }
+                  }
                 : null,
           ),
-          if (provider.matchScore != null) ...[
+          
+          if (provider.matchScore != null) ..[
             const SizedBox(height: AppTheme.space4),
             Container(
               padding: const EdgeInsets.all(AppTheme.space4),
@@ -627,20 +733,67 @@ class _UploadCard extends StatelessWidget {
             width: 2,
           ),
         ),
-        child: Column(
+        child: Row(
           children: [
             Icon(
               isUploaded ? Icons.check_circle : icon,
               color: isUploaded ? AppTheme.success : AppTheme.textSecondary,
               size: 32,
             ),
-            const SizedBox(height: AppTheme.space2),
+            const SizedBox(width: AppTheme.space3),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTheme.labelLarge.copyWith(
+                  color: isUploaded ? AppTheme.success : AppTheme.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModeButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ModeButton({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryPurple : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : AppTheme.textSecondary,
+            ),
+            const SizedBox(width: 8),
             Text(
               label,
               style: AppTheme.labelMedium.copyWith(
-                color: isUploaded ? AppTheme.success : AppTheme.textSecondary,
+                color: isSelected ? Colors.white : AppTheme.textSecondary,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
