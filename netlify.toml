@@ -1,0 +1,7 @@
+[build]
+command = "bash ./netlify-build.sh"
+publish = "build/web"
+
+[context.production.environment]
+# put any environment variables you need here (optional)
+# EXAMPLE_VAR = "value"

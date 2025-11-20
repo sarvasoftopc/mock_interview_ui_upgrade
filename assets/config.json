@@ -1,0 +1,52 @@
+{
+  "questions": [
+    {
+      "question": "Can you explain the differences between a Spring Boot application using REST APIs and one using WebFlux?",
+      "tags": ["spring boot", "webflux", "rest api"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "Describe how you would implement authentication in a microservices architecture using Spring Security.",
+      "tags": ["authentication", "microservices", "spring"],
+      "difficulty": "hard"
+    },
+    {
+      "question": "How do you document a REST API using OpenAPI and Swagger in a Spring application?",
+      "tags": ["swagger", "openapi", "rest api", "spring"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "How would you set up a CI/CD pipeline for a Java application deployed on AWS?",
+      "tags": ["ci/cd", "aws", "java"],
+      "difficulty": "hard"
+    },
+    {
+      "question": "Can you describe a time when you had to resolve a conflict within your team? What was your approach?",
+      "tags": ["teamwork", "problem solving"],
+      "difficulty": "medium"
+    },
+    {
+      "question": "Tell me about a leadership experience where you had to guide your team through a challenging project. How did you motivate them?",
+      "tags": ["leadership", "teamwork"],
+      "difficulty": "hard"
+    }
+  ],
+  "topics": [
+    "java",
+    "kotlin",
+    "spring boot",
+    "spring",
+    "rest api",
+    "openapi",
+    "swagger",
+    "webflux",
+    "microservices",
+    "ci/cd",
+    "aws",
+    "azure",
+    "authentication",
+    "teamwork",
+    "leadership",
+    "problem solving"
+  ]
+}
