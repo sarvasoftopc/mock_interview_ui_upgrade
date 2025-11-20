@@ -259,7 +259,7 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                         ),
                       ],
                     ),
-                    if (cfi_explanations.isNotEmpty) ..[
+                    if (cfi_explanations.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Text(
                         cfi_explanations,

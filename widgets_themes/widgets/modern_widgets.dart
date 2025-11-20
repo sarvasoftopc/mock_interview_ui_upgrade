@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../config/app_theme.dart';
+import '../app_theme.dart';
 
 /// Gradient Button Widget
 class GradientButton extends StatelessWidget {
@@ -57,7 +57,7 @@ class GradientButton extends StatelessWidget {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (icon != null) ..[
+                  if (icon != null) ...[
                     Icon(icon, size: 20),
                     const SizedBox(width: 8),
                   ],
@@ -98,7 +98,7 @@ class StatCard extends StatelessWidget {
       decoration: AppTheme.cardDecoration,
       child: Column(
         children: [
-          if (icon != null) ..[
+          if (icon != null) ...[
             Icon(icon, size: 32, color: color ?? AppTheme.primaryPurple),
             const SizedBox(height: 8),
           ],

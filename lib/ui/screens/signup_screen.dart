@@ -98,7 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (!isWide) ..[
+                          if (!isWide) ...[
                             const SizedBox(height: 6),
                             const Text(
                               'InterviewAI',
