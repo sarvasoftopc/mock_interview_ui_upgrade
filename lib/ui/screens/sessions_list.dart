@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../config/app_theme.dart';
 import '../../providers/session_provider.dart';
+import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/custom_app_bar.dart';
-
 
 class SessionsScreen extends StatefulWidget {
   const SessionsScreen({super.key});
@@ -27,7 +27,6 @@ class _SessionsScreenState extends State<SessionsScreen> {
   }
 
   String _formatDate(DateTime dt) {
-    // Use a simple human-readable format. Replace with intl if desired.
     final y = dt.year.toString();
     final m = dt.month.toString().padLeft(2, '0');
     final d = dt.day.toString().padLeft(2, '0');
@@ -39,77 +38,155 @@ class _SessionsScreenState extends State<SessionsScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SessionProvider>();
+    final isWide = MediaQuery.of(context).size.width > 900;
 
     return Scaffold(
-      appBar: CustomAppBar(
-          context: context,
-          titleText: "Mock Sessions Report"
-      ),
+      appBar: CustomAppBar(context: context, titleText: "Interview Sessions"),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => provider.fetchSessions(),
-        child: Builder(
-          builder: (ctx) {
-            if (provider.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+        child: RefreshIndicator(
+          onRefresh: () => provider.fetchSessions(),
+          color: AppTheme.primaryPurple,
+          child: Builder(
+            builder: (ctx) {
+              if (provider.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryPurple,
+                  ),
+                );
+              }
 
-            final sessions = provider.sessions;
-            if (sessions.isEmpty) {
-              return ListView(
-                // ListView so RefreshIndicator works even when empty
-                children: const [
-                  SizedBox(height: 120),
-                  Center(child: Text('No sessions found', style: TextStyle(fontSize: 16))),
-                ],
+              final sessions = provider.sessions;
+              if (sessions.isEmpty) {
+                return ListView(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                    const Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.inbox_outlined,
+                            size: 80,
+                            color: AppTheme.textLight,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No sessions found',
+                            style: AppTheme.bodyLarge,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Start your first interview to see results here',
+                            style: AppTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: isWide ? 1000 : double.infinity),
+                  child: ListView.separated(
+                    padding: EdgeInsets.all(isWide ? 24 : 16),
+                    itemCount: sessions.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (ctx, i) {
+                      final s = sessions[i];
+
+                      return InkWell(
+                        onTap: () => context.read<SessionProvider>().openSession(context, s.id, s.sessionType),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        child: Container(
+                          decoration: AppTheme.cardDecoration,
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              // Status Icon
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: s.completed
+                                      ? const LinearGradient(
+                                          colors: [Colors.green, Colors.lightGreen],
+                                        )
+                                      : LinearGradient(
+                                          colors: [Colors.orange.shade400, Colors.orange.shade600],
+                                        ),
+                                ),
+                                child: Icon(
+                                  s.completed ? Icons.check_circle : Icons.pending_actions,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Session Info
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      s.sessionType,
+                                      style: AppTheme.cardTitle.copyWith(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: 14,
+                                          color: AppTheme.textLight,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          _formatDate(s.createdAt),
+                                          style: AppTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Score or Chevron
+                              if (s.completed)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.primaryGradient,
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                  ),
+                                  child: Text(
+                                    s.score?.toStringAsFixed(1) ?? '-',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: AppTheme.textLight,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: sessions.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (ctx, i) {
-                final s = sessions[i];
-
-                final leading = s.completed
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.pending_actions, color: Colors.orange);
-
-                final trailing = s.completed
-                    ? Text("Score: ${s.score?.toStringAsFixed(1) ?? '-'}",
-                    style: const TextStyle(fontWeight: FontWeight.bold))
-                    : const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                );
-
-                // inside your ListTile
-                return ListTile(
-                  leading: s.completed
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : const Icon(Icons.pending_actions, color: Colors.orange),
-                  title: Text("Session :${s.sessionType}"),
-                  subtitle: Text("Date: ${_formatDate(s.createdAt)}"),
-                  trailing: s.completed
-                      ? Text("Score: ${s.score?.toStringAsFixed(1) ?? '-'}")
-                      : const Icon(Icons.chevron_right),
-                  onTap: () => context.read<SessionProvider>().openSession(context, s.id,s.sessionType),
-                );
-
-              },
-            );
-          },
+            },
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // optional: trigger a manual refresh
-          context.read<SessionProvider>().fetchSessions();
-        },
-        child: const Icon(Icons.refresh),
-        tooltip: 'Refresh sessions',
       ),
     );
   }
