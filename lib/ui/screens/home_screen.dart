@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sarvasoft_moc_interview/services/cv_jd_service.dart';
-import 'package:sarvasoft_moc_interview/ui/widgets/custom_app_bar.dart';
-
+import '../../config/app_theme.dart';
 import '../../providers/cv_jd_provider.dart';
+import '../../providers/profile_provider.dart';
+import '../../widgets/modern_components.dart';
 import '../../utils/file_util.dart';
+import '../../services/cv_jd_service.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/custom_app_bar.dart';
 
+/// Capabily Home Screen - Modern SaaS Dashboard
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,564 +17,734 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final ScrollController _scrollController = ScrollController();
-  final GlobalKey _analysisCardKey = GlobalKey();
-  int _selectedIndex = 0;
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  int _selectedNavIndex = 0;
 
-  CvJdProvider provider(BuildContext context) => context.read<CvJdProvider>();
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..forward();
+  }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
-  }
-
-  Future<void> _scrollToAnalysis() async {
-    if (_analysisCardKey.currentContext != null) {
-      await Scrollable.ensureVisible(
-        _analysisCardKey.currentContext!,
-        duration: const Duration(milliseconds: 420),
-        curve: Curves.easeInOut,
-        alignment: 0.1,
-      );
-    } else {
-      _scrollController.animateTo(300, duration: const Duration(milliseconds: 420), curve: Curves.easeInOut);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final cvJdProvider = context.watch<CvJdProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width > 1200;
+    final isTablet = size.width > 768 && size.width <= 1200;
 
     return Scaffold(
-      appBar: CustomAppBar(context: context, titleText: "AI Interview Prep"),
+      backgroundColor: AppTheme.backgroundLight,
       drawer: const AppDrawer(),
-      body: SafeArea(
-        child: LayoutBuilder(builder: (context, constraints) {
-          final isWide = constraints.maxWidth > 900;
-          final isTablet = constraints.maxWidth > 600 && constraints.maxWidth <= 900;
-
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _scrollController,
-                padding: EdgeInsets.symmetric(horizontal: isWide ? 48 : 16, vertical: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeroSection(context, cvJdProvider, isWide),
-                    const SizedBox(height: 28),
-                    _buildInterviewModeSection(context, isWide),
-                    const SizedBox(height: 20),
-                    Container(key: _analysisCardKey, child: _buildAnalysisAndQuickActions(context, cvJdProvider, isWide)),
-                    const SizedBox(height: 26),
-                    const Text("Explore Features", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    _buildFeatureGrid(context, cvJdProvider, isWide, isTablet),
-                    const SizedBox(height: 26),
-                    _buildWhySection(context, isWide),
-                    const SizedBox(height: 26),
-                    _buildFooter(context),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-
-              if (cvJdProvider.loading)
-                Container(
-                  color: Colors.black.withOpacity(0.25),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.indigo,
-                    ),
-                  ),
-                ),
-            ],
-          );
-        }),
+      appBar: CustomAppBar(
+        context: context,
+        titleText: 'Capabily',
+        backgroundColor: Colors.white,
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      body: LoadingOverlay(
+        isLoading: cvJdProvider.loading,
+        message: 'Analyzing your documents...',
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
+            vertical: AppTheme.space6,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Hero Section
+                  _buildHeroSection(context, profileProvider, isWide, isTablet),
+                  const SizedBox(height: AppTheme.space8),
+
+                  // Quick Stats
+                  _buildQuickStats(context, isWide, isTablet),
+                  const SizedBox(height: AppTheme.space8),
+
+                  // Main Content
+                  if (isWide)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              _buildInterviewModes(context),
+                              const SizedBox(height: AppTheme.space6),
+                              _buildCVJDAnalysis(context, cvJdProvider),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppTheme.space6),
+                        Expanded(
+                          child: _buildQuickActions(context),
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        _buildInterviewModes(context),
+                        const SizedBox(height: AppTheme.space6),
+                        _buildCVJDAnalysis(context, cvJdProvider),
+                        const SizedBox(height: AppTheme.space6),
+                        _buildQuickActions(context),
+                      ],
+                    ),
+
+                  const SizedBox(height: AppTheme.space8),
+
+                  // Features Section
+                  _buildFeaturesSection(context, isWide, isTablet),
+
+                  const SizedBox(height: AppTheme.space10),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: !isWide ? _buildBottomNav() : null,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, '/practice'),
-        label: const Text('Get Started'),
         icon: const Icon(Icons.rocket_launch),
-        backgroundColor: Colors.indigo.shade600,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-  Widget _buildHeroSection(BuildContext context, CvJdProvider cvJdProvider, bool isWide) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        gradient: LinearGradient(
-          colors: [Colors.indigo.shade800, Colors.indigo.shade500],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 12, offset: const Offset(0, 6)),
-        ],
-      ),
-      child: isWide
-          ? Row(
-        children: [
-          Expanded(child: _heroTextColumn(context, cvJdProvider)),
-          const SizedBox(width: 24),
-          Expanded(child: _heroIllustration(context)),
-        ],
-      )
-          : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _heroTextColumn(context, cvJdProvider),
-          const SizedBox(height: 18),
-          _heroIllustration(context),
-        ],
+        label: const Text('Start Practice'),
+        backgroundColor: AppTheme.primaryPurple,
+        elevation: 4,
       ),
     );
   }
 
-  Widget _heroTextColumn(BuildContext context, CvJdProvider cvJdProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Prepare smarter. Interview better.',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'AI-driven mock interviews, CV↔JD analysis, personalized coaching — all in one place.\nDesigned for candidates and teams.',
-          style: TextStyle(fontSize: 14.5, color: Colors.white70),
-        ),
-        const SizedBox(height: 18),
-        Wrap(spacing: 12, runSpacing: 12, children: [
-          ElevatedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/practice'),
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Try a Mock Interview'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber.shade600,
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-          OutlinedButton.icon(
-            onPressed: _scrollToAnalysis,
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text('Upload CV / JD'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: BorderSide(color: Colors.white.withOpacity(0.18)),
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ]),
-        const SizedBox(height: 14),
-        Wrap(
-          spacing: 12,
-          runSpacing: 8,
-          children: [
-            _compactStat('Avg. score ↑', '18%'),
-            _compactStat('Practice attempts', '1.2K'),
-            _compactStat('Satisfied users', '4.8/5'),
-          ],
-        )
-      ],
-    );
-  }
+  Widget _buildHeroSection(BuildContext context, ProfileProvider profileProvider, bool isWide, bool isTablet) {
+    final profile = profileProvider.profile;
+    final userName = profile?.fullName ?? 'there';
+    final greeting = _getGreeting();
 
-  Widget _compactStat(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _heroIllustration(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
+    return FadeTransition(
+      opacity: _animationController,
       child: Container(
+        padding: EdgeInsets.all(isWide ? AppTheme.space10 : AppTheme.space6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white.withOpacity(0.06),
-        ),
-        child: Center(
-          child: Icon(Icons.computer, size: 84, color: Colors.white.withOpacity(0.9)),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInterviewModeSection(BuildContext context, bool isWide) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Choose Your Interview Mode', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          isWide
-              ? Row(
-            children: [
-              Expanded(child: _modeCard(context, 'Skill-Based', Icons.build_circle, 'Focus on specific skills.', '/mockInterviewSkill')),
-              const SizedBox(width: 12),
-              Expanded(child: _modeCard(context, 'Role-Based', Icons.work_outline, 'Practice for a specific job role.', '/mockInterviewRole')),
-              const SizedBox(width: 12),
-              Expanded(child: _modeCard(context, 'AI Adaptive (Smart)', Icons.psychology_alt, 'Dynamic real-time interviews.', '/mockInterviewAdaptive')),
-            ],
-          )
-              : Column(
-            children: [
-              _modeCard(context, 'Skill-Based', Icons.build_circle, 'Focus on specific skills.', '/mockInterviewSkill'),
-              const SizedBox(height: 12),
-              _modeCard(context, 'Role-Based', Icons.work_outline, 'Practice for a specific job role.', '/mockInterviewRole'),
-              const SizedBox(height: 12),
-              _modeCard(context, 'AI Adaptive (Smart)', Icons.psychology_alt, 'Dynamic real-time interviews.', '/mockInterviewAdaptive'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _modeCard(BuildContext context, String title, IconData icon, String desc, String route) {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.indigo.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.indigo.shade100),
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+          boxShadow: AppTheme.shadowLg,
         ),
         child: Row(
           children: [
-            CircleAvatar(backgroundColor: Colors.indigo.shade100, child: Icon(icon, color: Colors.indigo)),
-            const SizedBox(width: 12),
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(desc, style: const TextStyle(fontSize: 12, color: Colors.black54)),
-              ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$greeting, $userName! 👋',
+                    style: (isWide ? AppTheme.displayMedium : AppTheme.headlineLarge)
+                        .copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(height: AppTheme.space3),
+                  Text(
+                    'Ready to ace your next interview? Let\'s practice and improve together.',
+                    style: AppTheme.bodyLarge.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.space6),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      ModernButton(
+                        text: 'Start Interview',
+                        icon: Icons.play_arrow,
+                        onPressed: () => Navigator.pushNamed(context, '/practice'),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        ),
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.pushNamed(context, '/insights'),
+                          icon: const Icon(Icons.analytics, color: AppTheme.primaryPurple),
+                          label: const Text(
+                            'View Insights',
+                            style: TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black26),
+            if (isWide) ..[
+              const SizedBox(width: AppTheme.space8),
+              Container(
+                width: 280,
+                height: 280,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                  border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.psychology_alt,
+                    size: 120,
+                    color: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAnalysisAndQuickActions(BuildContext context, CvJdProvider cvJdProvider, bool isWide) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(flex: 3, child: _cvJdAnalysisCard(context, cvJdProvider)),
-        if (isWide) const SizedBox(width: 20),
-        if (isWide)
-          Expanded(
-            flex: 2,
-            child: Column(
+  Widget _buildQuickStats(BuildContext context, bool isWide, bool isTablet) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+      )),
+      child: GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: isWide ? 4 : (isTablet ? 2 : 1),
+        mainAxisSpacing: AppTheme.space4,
+        crossAxisSpacing: AppTheme.space4,
+        childAspectRatio: isWide ? 1.5 : (isTablet ? 1.8 : 2.5),
+        children: const [
+          StatsCard(
+            label: 'Total Sessions',
+            value: '24',
+            icon: Icons.calendar_today,
+            color: AppTheme.primaryPurple,
+            trend: '+12%',
+          ),
+          StatsCard(
+            label: 'Avg Score',
+            value: '8.5/10',
+            icon: Icons.trending_up,
+            color: AppTheme.success,
+            trend: '+0.5',
+          ),
+          StatsCard(
+            label: 'Skills Mastered',
+            value: '18',
+            icon: Icons.stars,
+            color: AppTheme.warning,
+            trend: '+6',
+          ),
+          StatsCard(
+            label: 'Hours Practiced',
+            value: '42h',
+            icon: Icons.timer,
+            color: AppTheme.info,
+            trend: '+8h',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInterviewModes(BuildContext context) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
+            title: 'Interview Modes',
+            subtitle: 'Choose your practice style',
+          ),
+          const SizedBox(height: AppTheme.space4),
+          _InterviewModeCard(
+            icon: Icons.psychology_alt,
+            title: 'AI Adaptive',
+            subtitle: 'Smart questions that adapt to you',
+            gradient: AppTheme.primaryGradient,
+            onTap: () => Navigator.pushNamed(context, '/mockInterviewAdaptive'),
+          ),
+          const SizedBox(height: AppTheme.space3),
+          _InterviewModeCard(
+            icon: Icons.work_outline,
+            title: 'Role-Based',
+            subtitle: 'Practice for specific positions',
+            gradient: const LinearGradient(
+              colors: [Color(0xFF06B6D4), Color(0xFF3B82F6)],
+            ),
+            onTap: () => Navigator.pushNamed(context, '/mockInterviewRole'),
+          ),
+          const SizedBox(height: AppTheme.space3),
+          _InterviewModeCard(
+            icon: Icons.code,
+            title: 'Skill-Focused',
+            subtitle: 'Target specific competencies',
+            gradient: const LinearGradient(
+              colors: [Color(0xFF10B981), Color(0xFF34D399)],
+            ),
+            onTap: () => Navigator.pushNamed(context, '/mockInterviewSkill'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCVJDAnalysis(BuildContext context, CvJdProvider provider) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
+            title: 'CV & JD Analysis',
+            subtitle: 'AI-powered skill matching',
+          ),
+          const SizedBox(height: AppTheme.space4),
+          Container(
+            padding: const EdgeInsets.all(AppTheme.space4),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryPurple.withOpacity(0.1),
+                  AppTheme.primaryPurple.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.2)),
+            ),
+            child: Row(
               children: [
-                _quickActionCard(
-                  title: 'One-click Practice',
-                  icon: Icons.flash_on,
-                  subtitle: 'Start a short mock interview based on your CV skills',
-                  onTap: () => Navigator.pushNamed(context, '/mockInterview'),
-                ),
-                const SizedBox(height: 12),
-                _quickActionCard(
-                  title: 'STAR Stories',
-                  icon: Icons.book,
-                  subtitle: 'Save and reuse your behavioral examples',
-                  onTap: () => Navigator.pushNamed(context, '/starStories'),
-                ),
-                const SizedBox(height: 12),
-                _quickActionCard(
-                  title: 'Career Coach',
-                  icon: Icons.psychology,
-                  subtitle: 'Personalized tips and next steps',
-                  onTap: () => Navigator.pushNamed(context, '/careerCoach'),
+                Icon(Icons.lightbulb, color: AppTheme.primaryPurple, size: 24),
+                const SizedBox(width: AppTheme.space3),
+                Expanded(
+                  child: Text(
+                    'Upload your CV and job description to get personalized questions',
+                    style: AppTheme.bodySmall,
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: AppTheme.space4),
+          Row(
+            children: [
+              Expanded(
+                child: _UploadCard(
+                  icon: Icons.description,
+                  label: provider.cvText.isEmpty ? 'Upload CV' : 'CV Uploaded',
+                  isUploaded: provider.cvText.isNotEmpty,
+                  onTap: () => FileUtil.selectFile(context, true, provider),
+                ),
+              ),
+              const SizedBox(width: AppTheme.space3),
+              Expanded(
+                child: _UploadCard(
+                  icon: Icons.work,
+                  label: provider.jdText.isEmpty ? 'Upload JD' : 'JD Uploaded',
+                  isUploaded: provider.jdText.isNotEmpty,
+                  onTap: () => FileUtil.selectFile(context, false, provider),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.space4),
+          ModernButton(
+            text: provider.loading ? 'Analyzing...' : 'Analyze Match',
+            icon: Icons.analytics,
+            isFullWidth: true,
+            isLoading: provider.loading,
+            onPressed: (provider.cvText.isNotEmpty &&
+                    provider.jdText.isNotEmpty &&
+                    !provider.loading)
+                ? () => CvJDAnalysis().performSkillAnalysis(context, provider)
+                : null,
+          ),
+          if (provider.matchScore != null) ..[
+            const SizedBox(height: AppTheme.space4),
+            Container(
+              padding: const EdgeInsets.all(AppTheme.space4),
+              decoration: BoxDecoration(
+                color: AppTheme.success.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                border: Border.all(color: AppTheme.success.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.check, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: AppTheme.space3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Match Score: ${provider.matchScore}%', style: AppTheme.titleSmall),
+                        Text('View detailed analysis', style: AppTheme.bodySmall),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/skills'),
+                    child: const Text('View Details'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'Quick Actions'),
+          const SizedBox(height: AppTheme.space4),
+          _QuickActionTile(
+            icon: Icons.history,
+            title: 'Session History',
+            subtitle: 'View past interviews',
+            onTap: () => Navigator.pushNamed(context, '/sessions'),
+          ),
+          const Divider(height: AppTheme.space4),
+          _QuickActionTile(
+            icon: Icons.insights,
+            title: 'Performance Insights',
+            subtitle: 'Track your progress',
+            onTap: () => Navigator.pushNamed(context, '/insights'),
+          ),
+          const Divider(height: AppTheme.space4),
+          _QuickActionTile(
+            icon: Icons.school,
+            title: 'Preparation Hub',
+            subtitle: 'Learning resources',
+            onTap: () => Navigator.pushNamed(context, '/preparationHub'),
+          ),
+          const Divider(height: AppTheme.space4),
+          _QuickActionTile(
+            icon: Icons.book,
+            title: 'STAR Stories',
+            subtitle: 'Behavioral examples',
+            onTap: () => Navigator.pushNamed(context, '/starStories'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeaturesSection(BuildContext context, bool isWide, bool isTablet) {
+    final features = [
+      {'title': 'Panel Interview', 'desc': 'Multi-interviewer mode', 'icon': Icons.group, 'route': '/panelInterview'},
+      {'title': 'Career Coach', 'desc': 'AI guidance', 'icon': Icons.psychology, 'route': '/careerCoach'},
+      {'title': 'Skill Dashboard', 'desc': 'Track abilities', 'icon': Icons.dashboard, 'route': '/skills'},
+      {'title': 'Settings', 'desc': 'Customize experience', 'icon': Icons.settings, 'route': '/settings'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionHeader(
+          title: 'More Features',
+          subtitle: 'Comprehensive interview preparation tools',
+        ),
+        const SizedBox(height: AppTheme.space4),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isWide ? 4 : (isTablet ? 2 : 2),
+            mainAxisSpacing: AppTheme.space4,
+            crossAxisSpacing: AppTheme.space4,
+            childAspectRatio: 1.1,
+          ),
+          itemCount: features.length,
+          itemBuilder: (context, index) {
+            final feature = features[index];
+            return _FeatureCard(
+              icon: feature['icon'] as IconData,
+              title: feature['title'] as String,
+              description: feature['desc'] as String,
+              onTap: () => Navigator.pushNamed(context, feature['route'] as String),
+            );
+          },
+        ),
       ],
     );
   }
 
-  Widget _quickActionCard({required String title, required IconData icon, required String subtitle, required VoidCallback onTap}) {
-    return GestureDetector(
+  Widget _buildBottomNav() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: AppTheme.shadowMd,
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedNavIndex,
+        onTap: (index) {
+          setState(() => _selectedNavIndex = index);
+          switch (index) {
+            case 0:
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/sessions');
+              break;
+            case 2:
+              Navigator.pushNamed(context, '/insights');
+              break;
+            case 3:
+              Navigator.pushNamed(context, '/profile');
+              break;
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppTheme.primaryPurple,
+        unselectedItemColor: AppTheme.textLight,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Sessions'),
+          BottomNavigationBarItem(icon: Icon(Icons.insights), label: 'Insights'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+}
+
+// Supporting Widgets
+class _InterviewModeCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final LinearGradient gradient;
+  final VoidCallback onTap;
+
+  const _InterviewModeCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.gradient,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppTheme.space4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+          gradient: LinearGradient(
+            colors: gradient.colors.map((c) => c.withOpacity(0.1)).toList(),
+          ),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(color: gradient.colors.first.withOpacity(0.3)),
         ),
         child: Row(
           children: [
-            CircleAvatar(backgroundColor: Colors.indigo.shade50, child: Icon(icon, color: Colors.indigo)),
-            const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.bold)), const SizedBox(height: 4), Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54))])),
-            const Icon(Icons.chevron_right, color: Colors.black26),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: gradient,
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              ),
+              child: Icon(icon, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: AppTheme.space4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTheme.titleMedium),
+                  Text(subtitle, style: AppTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textLight),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildFeatureGrid(BuildContext context, CvJdProvider cvJdProvider, bool isWide, bool isTablet) {
-    final features = [
-      _FeatureData('Practice & Improve', 'Sharpen skills using CV, JD, or select from skill list for targeted practice.', Icons.school, '/practice'),
-      _FeatureData('Mock Interview', 'Simulated interview with AI-generated questions and analysis.', Icons.mic, '/mockInterview'),
-      _FeatureData('Stress Simulator', 'Timed interviews to simulate real pressure environments.', Icons.timer, '/stressSimulator'),
-      _FeatureData('Panel Interview', 'Face a panel of AI interviewers for realistic practice.', Icons.group, '/panelInterview'),
-      _FeatureData('AI Career Coach', 'Get personalized career guidance, tips, and improvement areas.', Icons.psychology, '/careerCoach'),
-      _FeatureData('STAR Story Bank', 'Prepare STAR-format stories for behavioral interviews.', Icons.book, '/starStories'),
-    ];
+class _UploadCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isUploaded;
+  final VoidCallback onTap;
 
-    int crossAxis = isWide ? 3 : (isTablet ? 2 : 1);
+  const _UploadCard({
+    required this.icon,
+    required this.label,
+    required this.isUploaded,
+    required this.onTap,
+  });
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxis,
-        mainAxisExtent: 150,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: features.length,
-      itemBuilder: (context, index) {
-        final f = features[index];
-        return _featureCardResponsive(
-          context,
-          title: f.title,
-          description: f.description,
-          icon: f.icon,
-          route: f.route,
-          isWide: true,
-          disabled: cvJdProvider.loading,
-        );
-      },
-    );
-  }
-
-  Widget _buildWhySection(BuildContext context, bool isWide) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)]),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Why choose us?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 8),
-        const Text('AI-powered simulations, tailored feedback, safe practice environment, and measurable progress.'),
-        const SizedBox(height: 12),
-        Row(children: [
-          _benefitTile(Icons.speed, 'Fast setup'),
-          const SizedBox(width: 12),
-          _benefitTile(Icons.shield, 'Privacy-first'),
-          const SizedBox(width: 12),
-          _benefitTile(Icons.track_changes, 'Actionable insights'),
-        ])
-      ]),
-    );
-  }
-
-  Widget _benefitTile(IconData icon, String title) {
-    return Expanded(
-      child: Row(children: [
-        CircleAvatar(backgroundColor: Colors.indigo.shade50, child: Icon(icon, color: Colors.indigo)),
-        const SizedBox(width: 8),
-        Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600))),
-      ]),
-    );
-  }
-
-  Widget _buildFooter(BuildContext context) {
-    return Center(
-      child: Wrap(alignment: WrapAlignment.center, spacing: 12, children: [
-        TextButton(onPressed: () => Navigator.pushNamed(context, '/settings'), child: const Text('Settings')),
-        TextButton(onPressed: () => Navigator.pushNamed(context, '/reports'), child: const Text('Reports')),
-        TextButton(onPressed: () => Navigator.pushNamed(context, '/resumeBuilder'), child: const Text('Resume Builder')),
-      ]),
-    );
-  }
-
-  BottomNavigationBar _buildBottomNav(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: _selectedIndex,
-      selectedItemColor: Colors.indigo,
-      unselectedItemColor: Colors.grey,
-      onTap: (index) {
-        setState(() => _selectedIndex = index);
-        switch (index) {
-          case 0:
-            break;
-          case 1:
-            Navigator.pushNamed(context, '/skills');
-            break;
-          case 2:
-            Navigator.pushNamed(context, '/preparationHub');
-            break;
-          case 3:
-            Navigator.pushNamed(context, '/history');
-            break;
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Skills Dashboard"),
-        BottomNavigationBarItem(icon: Icon(Icons.school), label: "Preparation Hub"),
-        BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-      ],
-    );
-  }
-
-  Widget _cvJdAnalysisCard(BuildContext context, CvJdProvider cvJdProvider) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        gradient: LinearGradient(
-          colors: [Colors.indigo.shade500, Colors.indigo.shade300],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 6))],
-      ),
-      padding: const EdgeInsets.all(18),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Icon(Icons.analytics_outlined, size: 36, color: Colors.white),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Text('CV + JD Analysis', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.space4),
+        decoration: BoxDecoration(
+          color: isUploaded ? AppTheme.success.withOpacity(0.1) : AppTheme.backgroundGray,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: isUploaded ? AppTheme.success : Colors.grey.shade300,
+            width: 2,
           ),
-        ]),
-        const SizedBox(height: 8),
-        const Text('Upload your CV & JD together and run skill match analysis with tailored questions.', style: TextStyle(fontSize: 13, color: Colors.white70)),
-        const SizedBox(height: 14),
-        Row(children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: cvJdProvider.loading ? null : () => FileUtil.selectFile(context, true, provider(context)),
-              icon: const Icon(Icons.upload_file_outlined),
-              label: Text(cvJdProvider.cvText.isNotEmpty ? 'CV Uploaded' : 'Upload CV'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.indigo.shade900,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              isUploaded ? Icons.check_circle : icon,
+              color: isUploaded ? AppTheme.success : AppTheme.textSecondary,
+              size: 32,
+            ),
+            const SizedBox(height: AppTheme.space2),
+            Text(
+              label,
+              style: AppTheme.labelMedium.copyWith(
+                color: isUploaded ? AppTheme.success : AppTheme.textSecondary,
               ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: cvJdProvider.loading ? null : () => FileUtil.selectFile(context, false, provider(context)),
-              icon: const Icon(Icons.work_outline),
-              label: Text(cvJdProvider.jdText.isNotEmpty ? 'JD Uploaded' : 'Upload JD'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.indigo.shade900,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ),
-        ]),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: (cvJdProvider.cvText.isNotEmpty && cvJdProvider.jdText.isNotEmpty && !cvJdProvider.loading)
-                ? () => CvJDAnalysis().performSkillAnalysis(context, provider(context))
-                : null,
-            icon: cvJdProvider.loading
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Icon(Icons.play_circle_fill),
-            label: Text(cvJdProvider.loading ? 'Analyzing…' : 'Perform Analysis'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              backgroundColor: Colors.amber.shade600,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ),
-      ]),
-    );
-  }
-
-  Widget _featureCardResponsive(BuildContext context,
-      {required String title, required String description, required IconData icon, required String route, required bool isWide, bool disabled = false}) {
-    return MouseRegion(
-      cursor: disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: disabled
-            ? () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Analysis in progress. Please wait or view results in Skills Dashboard.')));
-        }
-            : () => Navigator.pushNamed(context, route),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(colors: disabled ? [Colors.grey.shade300, Colors.grey.shade200] : [Colors.pink.shade400, Colors.pink.shade200], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 6))],
-          ),
-          padding: const EdgeInsets.all(14),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 34, color: Colors.white),
-            const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 6),
-            Text(description, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: Colors.white70)),
-          ]),
+          ],
         ),
       ),
     );
-  }
-
-  Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
-    return ListTile(leading: Icon(icon), title: Text(title), onTap: () {
-      Navigator.of(context).pop();
-      onTap();
-    });
   }
 }
 
-class _FeatureData {
+class _QuickActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _QuickActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppTheme.space2),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              ),
+              child: Icon(icon, color: AppTheme.primaryPurple, size: 20),
+            ),
+            const SizedBox(width: AppTheme.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTheme.titleSmall),
+                  Text(subtitle, style: AppTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20, color: AppTheme.textLight),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
   final String title;
   final String description;
-  final IconData icon;
-  final String route;
+  final VoidCallback onTap;
 
-  _FeatureData(this.title, this.description, this.icon, this.route);
+  const _FeatureCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ModernCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(AppTheme.space4),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(height: AppTheme.space3),
+          Text(title, style: AppTheme.titleSmall, textAlign: TextAlign.center),
+          const SizedBox(height: AppTheme.space1),
+          Text(
+            description,
+            style: AppTheme.bodySmall,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
 }
-
-

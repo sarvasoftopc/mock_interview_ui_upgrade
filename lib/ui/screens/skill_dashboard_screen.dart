@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sarvasoft_moc_interview/models/mock_interview_session.dart';
-import 'package:sarvasoft_moc_interview/ui/screens/summary_bottom_sheet.dart';
-import 'package:sarvasoft_moc_interview/ui/widgets/custom_app_bar.dart';
-
+import 'dart:math' as math;
+import '../../config/app_theme.dart';
 import '../../generated/l10n.dart';
+import '../../models/mock_interview_session.dart';
 import '../../providers/cv_jd_provider.dart';
 import '../../providers/interview_provider.dart';
+import '../../widgets/modern_components.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/custom_app_bar.dart';
+import 'summary_bottom_sheet.dart';
 
-
+/// Capabily Skill Dashboard - Modern Data Visualization
 class SkillDashboardScreen extends StatefulWidget {
   const SkillDashboardScreen({Key? key}) : super(key: key);
 
@@ -17,36 +19,44 @@ class SkillDashboardScreen extends StatefulWidget {
   State<SkillDashboardScreen> createState() => _SkillDashboardScreenState();
 }
 
-class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
+class _SkillDashboardScreenState extends State<SkillDashboardScreen>
+    with SingleTickerProviderStateMixin {
   bool _initialized = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
-      // Ensure provider loads last analysis if not already loaded.
       final cvJdProvider = context.read<CvJdProvider>();
       cvJdProvider.ensureAnalysisLoaded();
       _initialized = true;
     }
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   Future<void> _startMockInterview(BuildContext context) async {
     final provider = context.read<InterviewProvider>();
-
     final cvJdProvider = context.read<CvJdProvider>();
+    
     if (cvJdProvider.sessionId.isNotEmpty && cvJdProvider.questions.isNotEmpty) {
-      // use existing session/questions
-      debugPrint("current session with session id:${cvJdProvider.sessionId}");
       provider.loadQuestions(cvJdProvider.questions);
-      provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+      provider.startSession(cvJdProvider.sessionId, SessionType.normal);
     } else {
-      // fetch analysis & questions (provider handles repeated calls / caching)
       await cvJdProvider.extractSkillsAndFetchQuestions();
-
-      debugPrint("current session with session id:${cvJdProvider.sessionId}");
       provider.loadQuestions(cvJdProvider.questions);
-      provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+      provider.startSession(cvJdProvider.sessionId, SessionType.normal);
     }
     Navigator.of(context).pushNamed('/question');
   }
@@ -57,475 +67,298 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
     final overlapSkills = cvJdProvider.overlapSkills;
     final missingSkills = cvJdProvider.missingSkills;
     final extraSkills = cvJdProvider.additonalSkills;
-    final summary = cvJdProvider.summary ?? "No summary available.";
+    final summary = cvJdProvider.summary ?? "No analysis available yet.";
     final matchScore = double.tryParse(cvJdProvider.matchScore ?? "0") ?? 0.0;
+    
+    final size = MediaQuery.of(context).size;
+    final isWide = size.width > 1200;
+    final isTablet = size.width > 768 && size.width <= 1200;
+
+    // Check if analysis exists
+    final hasAnalysis = overlapSkills.isNotEmpty || missingSkills.isNotEmpty || extraSkills.isNotEmpty;
 
     return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
       appBar: CustomAppBar(
-          context: context,
-          titleText: AppLocalizations.of(context).skillsDashboard),
+        context: context,
+        titleText: 'Skill Dashboard',
+        backgroundColor: Colors.white,
+      ),
       drawer: const AppDrawer(),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-
-          // Wide screen: two-column layout (main content + right panel)
-          if (width >= 1000) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left / main column
-                  Expanded(
-                    flex: 3,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildMatchScoreCard(context, matchScore, summary),
-                          const SizedBox(height: 16),
-                          _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore),
-                          const SizedBox(height: 16),
-                          _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Colors.indigo, Colors.blue],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/preparationHub',
-                                          arguments: {"missingSkills": missingSkills});
-                                    },
-                                    icon: const Icon(Icons.school, color: Colors.white),
-                                    label: Text(
-                                      AppLocalizations.of(context).prepareMissingSkills,
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 0,
-                                      backgroundColor: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      padding: const EdgeInsets.symmetric(vertical: 18),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Colors.deepPurple, Colors.pinkAccent],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () => _startMockInterview(context),
-                                    icon: const Icon(Icons.mic, color: Colors.white),
-                                    label: Text(
-                                      AppLocalizations.of(context).startMockInterview,
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 0,
-                                      backgroundColor: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      padding: const EdgeInsets.symmetric(vertical: 18),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // Right / side column: useful info, quick actions, recent sessions
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  leading: const Icon(Icons.timeline),
-                                  title: Text("Reset Sessions"),
-                                  onTap: () => Navigator.pushNamed(context, '/sessions'),
-                                ),
-                                const Divider(),
-                                ListTile(
-                                  leading: const Icon(Icons.playlist_add_check),
-                                  title: Text("Recommended Practice"),
-                                  onTap: () => Navigator.pushNamed(context, '/preparationHub', arguments: {"missingSkills": missingSkills}),
-                                ),
-                                const Divider(),
-                                ListTile(
-                                  leading: const Icon(Icons.share),
-                                  title: Text("Share Report"),
-                                  onTap: () {
-                                    // TODO: implement share
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Quick Tip", style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                const Text("• Add missing skills to your CV\n• Practice STAR stories for behavioral questions\n• Record 5-minute answers and review"),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // put more side widgets as needed
-                      ],
-                    ),
-                  ),
-                ],
+      body: hasAnalysis
+          ? SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
+                vertical: AppTheme.space6,
               ),
-            );
-          }
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Section
+                      _buildHeaderSection(context, matchScore, isWide),
+                      const SizedBox(height: AppTheme.space8),
 
-          // Medium screens: two-column like tablet
-          if (width >= 600) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
+                      // Quick Stats
+                      _buildQuickStats(context, overlapSkills, missingSkills, extraSkills, isWide, isTablet),
+                      const SizedBox(height: AppTheme.space8),
+
+                      // Main Content
+                      if (isWide)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  _buildMatchVisualization(context, matchScore, overlapSkills.length, missingSkills.length),
+                                  const SizedBox(height: AppTheme.space6),
+                                  _buildSkillsBreakdown(context, overlapSkills, missingSkills, extraSkills),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: AppTheme.space6),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _buildActionPanel(context, cvJdProvider),
+                                  const SizedBox(height: AppTheme.space6),
+                                  _buildSummaryCard(context, summary),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            _buildMatchVisualization(context, matchScore, overlapSkills.length, missingSkills.length),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildActionPanel(context, cvJdProvider),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildSkillsBreakdown(context, overlapSkills, missingSkills, extraSkills),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildSummaryCard(context, summary),
+                          ],
+                        ),
+
+                      const SizedBox(height: AppTheme.space10),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : EmptyState(
+              icon: Icons.analytics,
+              title: 'No Analysis Yet',
+              description: 'Upload your CV and job description to see your skill match analysis',
+              actionText: 'Go to Home',
+              onAction: () => Navigator.pop(context),
+            ),
+    );
+  }
+
+  Widget _buildHeaderSection(BuildContext context, double matchScore, bool isWide) {
+    return Container(
+      padding: EdgeInsets.all(isWide ? AppTheme.space8 : AppTheme.space6),
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        boxShadow: AppTheme.shadowLg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                ),
+                child: const Icon(Icons.analytics, color: Colors.white, size: 32),
+              ),
+              const SizedBox(width: AppTheme.space4),
+              Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(child: _buildMatchScoreCard(context, matchScore, summary)),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore)),
-                      ],
+                    Text(
+                      'Skill Match Analysis',
+                      style: isWide 
+                          ? AppTheme.headlineLarge.copyWith(color: Colors.white)
+                          : AppTheme.headlineSmall.copyWith(color: Colors.white),
                     ),
-                    const SizedBox(height: 16),
-                    _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Colors.indigo, Colors.blue],
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/preparationHub',
-                                    arguments: {"missingSkills": missingSkills});
-                              },
-                              icon: const Icon(Icons.school, color: Colors.white),
-                              label: Text(
-                                AppLocalizations.of(context).prepareMissingSkills,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(vertical: 18),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Colors.deepPurple, Colors.pinkAccent],
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ElevatedButton.icon(
-                              onPressed: () => _startMockInterview(context),
-                              icon: const Icon(Icons.mic, color: Colors.white),
-                              label: Text(
-                                AppLocalizations.of(context).startMockInterview,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0,
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(vertical: 18),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: AppTheme.space1),
+                    Text(
+                      'CV vs Job Description Comparison',
+                      style: AppTheme.bodyMedium.copyWith(color: Colors.white.withOpacity(0.9)),
                     ),
                   ],
                 ),
               ),
-            );
-          }
-
-          // Narrow screen (mobile) - original layout preserved
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // ===== Match Score Radial Chart =====
-                _buildMatchScoreCard(context, matchScore, summary),
-
-                const SizedBox(height: 16),
-
-                // ===== Insights =====
-                _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore),
-
-                const SizedBox(height: 16),
-
-                // ===== Skills Tabs =====
-                _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
-
-                const SizedBox(height: 24),
-
-                // ===== Action Buttons =====
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.indigo, Colors.blue],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/preparationHub',
-                                arguments: {"missingSkills": missingSkills});
-                          },
-                          icon: const Icon(Icons.school, color: Colors.white),
-                          label: Text(
-                            AppLocalizations.of(context).prepareMissingSkills,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Colors.deepPurple, Colors.pinkAccent],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ElevatedButton.icon(
-                          onPressed: () => _startMockInterview(context),
-                          icon: const Icon(Icons.mic, color: Colors.white),
-                          label: Text(
-                            AppLocalizations.of(context).startMockInterview,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          );
-        },
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  // === Match Score Card ===
-  Widget _buildMatchScoreCard(BuildContext context, double matchScore, String summary) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context).matchScore,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
+  Widget _buildQuickStats(BuildContext context, List overlapSkills, List missingSkills, 
+      List extraSkills, bool isWide, bool isTablet) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: isWide ? 4 : (isTablet ? 2 : 1),
+      mainAxisSpacing: AppTheme.space4,
+      crossAxisSpacing: AppTheme.space4,
+      childAspectRatio: isWide ? 1.5 : (isTablet ? 1.8 : 2.5),
+      children: [
+        StatsCard(
+          label: 'Matched Skills',
+          value: '${overlapSkills.length}',
+          icon: Icons.check_circle,
+          color: AppTheme.success,
+        ),
+        StatsCard(
+          label: 'Skills to Learn',
+          value: '${missingSkills.length}',
+          icon: Icons.school,
+          color: AppTheme.warning,
+        ),
+        StatsCard(
+          label: 'Extra Skills',
+          value: '${extraSkills.length}',
+          icon: Icons.star,
+          color: AppTheme.info,
+        ),
+        StatsCard(
+          label: 'Total Skills',
+          value: '${overlapSkills.length + missingSkills.length + extraSkills.length}',
+          icon: Icons.inventory,
+          color: AppTheme.primaryPurple,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMatchVisualization(BuildContext context, double matchScore, int matched, int missing) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(
+            title: 'Match Score',
+            subtitle: 'Your skill alignment with the job',
+          ),
+          const SizedBox(height: AppTheme.space6),
+          
+          // Circular Progress
+          Center(
+            child: SizedBox(
               width: 200,
+              height: 200,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    value: matchScore / 100,
-                    strokeWidth: 14,
-                    backgroundColor: Colors.grey.shade200,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      matchScore >= 75
-                          ? Colors.green
-                          : matchScore >= 50
-                          ? Colors.amber
-                          : Colors.redAccent,
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: CircularProgressIndicator(
+                      value: matchScore / 100,
+                      strokeWidth: 16,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        _getScoreColor(matchScore),
+                      ),
                     ),
                   ),
-                  Text(
-                    "${matchScore.toStringAsFixed(1)}%",
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${matchScore.toInt()}%',
+                        style: AppTheme.displayMedium.copyWith(
+                          color: _getScoreColor(matchScore),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        _getScoreLabel(matchScore),
+                        style: AppTheme.bodyMedium,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.article_outlined),
-              label: const Text("View Summary"),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          
+          const SizedBox(height: AppTheme.space6),
+          
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _LegendItem(
+                color: AppTheme.success,
+                label: 'Matched',
+                value: matched.toString(),
               ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (ctx) {
-                    return SummaryBottomSheet(summary: summary);
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // === Insights Card ===
-  Widget _buildInsightsCard(BuildContext context, List<String> overlap,
-      List<String> missing, List<String> extra, double score) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(AppLocalizations.of(context).insights,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 12),
-            _insightRow(context, AppLocalizations.of(context).matchedSkills, "${overlap.length}"),
-            _insightRow(context, AppLocalizations.of(context).missingSkills, "${missing.length}"),
-            _insightRow(context, AppLocalizations.of(context).extraSkills, "${extra.length}"),
-            _insightRow(context, AppLocalizations.of(context).strengthArea, overlap.isNotEmpty ? overlap.first : AppLocalizations.of(context).na),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _insightRow(BuildContext context, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
+              _LegendItem(
+                color: AppTheme.warning,
+                label: 'Missing',
+                value: missing.toString(),
+              ),
+              _LegendItem(
+                color: _getScoreColor(matchScore),
+                label: 'Score',
+                value: '${matchScore.toInt()}%',
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  // === Skills Tabs ===
-  Widget _buildSkillsTabs(BuildContext context, List<String> overlap, List<String> missing, List<String> extra) {
-    return DefaultTabController(
-      length: 3,
+  Widget _buildSkillsBreakdown(BuildContext context, List overlapSkills, List missingSkills, List extraSkills) {
+    return ModernCard(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SectionHeader(
+            title: 'Skills Breakdown',
+            subtitle: 'Detailed skill comparison',
+          ),
+          const SizedBox(height: AppTheme.space4),
+          
           TabBar(
-            labelColor: Colors.indigo,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.indigo,
+            controller: _tabController,
+            labelColor: AppTheme.primaryPurple,
+            unselectedLabelColor: AppTheme.textSecondary,
+            indicatorColor: AppTheme.primaryPurple,
             tabs: [
-              Tab(text: AppLocalizations.of(context).matchedSkills),
-              Tab(text: AppLocalizations.of(context).missingSkills),
-              Tab(text: AppLocalizations.of(context).extraSkills),
+              Tab(text: 'Matched (${overlapSkills.length})'),
+              Tab(text: 'Missing (${missingSkills.length})'),
+              Tab(text: 'Extra (${extraSkills.length})'),
             ],
           ),
-          Container(
-            height: 220,
-            padding: const EdgeInsets.all(12),
+          
+          const SizedBox(height: AppTheme.space4),
+          
+          SizedBox(
+            height: 400,
             child: TabBarView(
+              controller: _tabController,
               children: [
-                _skillsChipList(overlap, Colors.green.shade600),
-                _skillsChipList(missing, Colors.redAccent.shade200),
-                _skillsChipList(extra, Colors.blueGrey.shade400),
+                _buildSkillList(overlapSkills, AppTheme.success, Icons.check_circle),
+                _buildSkillList(missingSkills, AppTheme.warning, Icons.school),
+                _buildSkillList(extraSkills, AppTheme.info, Icons.star),
               ],
             ),
           ),
@@ -534,21 +367,265 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
     );
   }
 
-  Widget _skillsChipList(List<String> skills, Color color) {
+  Widget _buildSkillList(List skills, Color color, IconData icon) {
     if (skills.isEmpty) {
-      return const Center(child: Text("No skills found"));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_outlined, size: 64, color: AppTheme.textLight),
+            const SizedBox(height: AppTheme.space4),
+            Text('No skills in this category', style: AppTheme.bodyMedium),
+          ],
+        ),
+      );
     }
-    return SingleChildScrollView(
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: skills
-            .map((skill) => Chip(
-          label: Text(skill, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ))
-            .toList(),
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(AppTheme.space2),
+      itemCount: skills.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppTheme.space3),
+      itemBuilder: (context, index) {
+        final skill = skills[index].toString();
+        return Container(
+          padding: const EdgeInsets.all(AppTheme.space4),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: AppTheme.space3),
+              Expanded(
+                child: Text(
+                  skill,
+                  style: AppTheme.titleSmall,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActionPanel(BuildContext context, CvJdProvider provider) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'Quick Actions'),
+          const SizedBox(height: AppTheme.space4),
+          
+          ModernButton(
+            text: 'Start Practice Interview',
+            icon: Icons.play_arrow,
+            isFullWidth: true,
+            onPressed: () => _startMockInterview(context),
+          ),
+          
+          const SizedBox(height: AppTheme.space3),
+          
+          ModernButton(
+            text: 'View Detailed Summary',
+            icon: Icons.description,
+            isPrimary: false,
+            isFullWidth: true,
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => SummaryBottomSheet(summary: provider.summary ?? ''),
+              );
+            },
+          ),
+          
+          const SizedBox(height: AppTheme.space3),
+          
+          ModernButton(
+            text: 'New Analysis',
+            icon: Icons.refresh,
+            isPrimary: false,
+            isFullWidth: true,
+            onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+          ),
+          
+          const SizedBox(height: AppTheme.space6),
+          const Divider(),
+          const SizedBox(height: AppTheme.space4),
+          
+          _ActionTile(
+            icon: Icons.trending_up,
+            title: 'Improve Skills',
+            subtitle: 'Get learning resources',
+            onTap: () => Navigator.pushNamed(context, '/preparationHub'),
+          ),
+          const SizedBox(height: AppTheme.space3),
+          _ActionTile(
+            icon: Icons.history,
+            title: 'View History',
+            subtitle: 'Past analyses',
+            onTap: () => Navigator.pushNamed(context, '/sessions'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard(BuildContext context, String summary) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.info.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                ),
+                child: const Icon(Icons.lightbulb, color: AppTheme.info, size: 24),
+              ),
+              const SizedBox(width: AppTheme.space3),
+              const Expanded(
+                child: Text('AI Insights', style: AppTheme.titleMedium),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.space4),
+          Container(
+            padding: const EdgeInsets.all(AppTheme.space4),
+            decoration: BoxDecoration(
+              color: AppTheme.backgroundGray,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
+            child: Text(
+              summary.length > 300 ? '${summary.substring(0, 300)}...' : summary,
+              style: AppTheme.bodyMedium.copyWith(height: 1.6),
+            ),
+          ),
+          const SizedBox(height: AppTheme.space3),
+          TextButton.icon(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => SummaryBottomSheet(summary: summary),
+              );
+            },
+            icon: const Icon(Icons.read_more),
+            label: const Text('Read Full Summary'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getScoreColor(double score) {
+    if (score >= 80) return AppTheme.success;
+    if (score >= 60) return AppTheme.info;
+    if (score >= 40) return AppTheme.warning;
+    return AppTheme.error;
+  }
+
+  String _getScoreLabel(double score) {
+    if (score >= 80) return 'Excellent Match';
+    if (score >= 60) return 'Good Match';
+    if (score >= 40) return 'Fair Match';
+    return 'Needs Improvement';
+  }
+}
+
+// Supporting Widgets
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+  final String value;
+
+  const _LegendItem({
+    required this.color,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(label, style: AppTheme.bodySmall),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(value, style: AppTheme.titleSmall.copyWith(color: color)),
+      ],
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.space3),
+        decoration: BoxDecoration(
+          color: AppTheme.backgroundGray,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppTheme.primaryPurple, size: 24),
+            const SizedBox(width: AppTheme.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTheme.titleSmall),
+                  Text(subtitle, style: AppTheme.bodySmall),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20, color: AppTheme.textLight),
+          ],
+        ),
       ),
     );
   }
