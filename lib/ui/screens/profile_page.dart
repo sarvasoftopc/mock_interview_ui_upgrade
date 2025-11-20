@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (_) => WillPopScope(
           onWillPop: () async => false,
           child: AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
             content: Row(
               children: const [
                 SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
@@ -123,7 +123,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (_) => WillPopScope(
         onWillPop: () async => false,
         child: AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMedium)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
           content: Row(
             children: const [
               SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
@@ -194,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(isWide ? 32 : 24),
@@ -208,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               gradient: AppTheme.primaryGradient,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                             ),
                             child: const Icon(Icons.person_outline, color: Colors.white, size: 28),
                           ),
@@ -216,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           const Expanded(
                             child: Text(
                               'Build Your Professional Profile',
-                              style: AppTheme.sectionTitle,
+                              style: AppTheme.titleMedium,
                             ),
                           ),
                         ],
@@ -330,7 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3), width: 2),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                           color: AppTheme.primaryLight.withOpacity(0.3),
                         ),
                         child: _skills.isEmpty
@@ -375,16 +375,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               decoration: AppTheme.inputDecoration('Add Skill Manually').copyWith(
                                 prefixIcon: const Icon(Icons.code),
                               ),
-                              onSubmitted: (v) {
-                                final s = v.trim();
-                                if (s.isEmpty) return;
-                                if (!_skills.contains(s)) {
-                                  setState(() {
-                                    _skills.add(s);
-                                    _selectedSkills.add(s);
-                                  });
-                                }
-                              },
+                              // onSubmitted: (v) {
+                              //   final s = v.trim();
+                              //   if (s.isEmpty) return;
+                              //   if (!_skills.contains(s)) {
+                              //     setState(() {
+                              //       _skills.add(s);
+                              //       _selectedSkills.add(s);
+                              //     });
+                              //   }
+                              // },
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -395,13 +395,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ],
                       ),
-                      if (_cvFileName != null) ..[
+                      if (_cvFileName != null) ...[
                         const SizedBox(height: 12),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                             border: Border.all(color: Colors.green.shade200),
                           ),
                           child: Row(
@@ -426,7 +426,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryLight.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                         ),
                         child: Row(
                           children: [
@@ -483,7 +483,7 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(width: 8),
         Text(
           title,
-          style: AppTheme.cardTitle.copyWith(color: AppTheme.primaryPurple),
+          style: AppTheme.titleMedium.copyWith(color: AppTheme.primaryPurple),
         ),
       ],
     );

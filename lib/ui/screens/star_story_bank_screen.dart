@@ -73,7 +73,7 @@ class StarStoryScreen extends StatelessWidget {
                     );
                   },
                   child: Container(
-                    decoration: AppTheme.elevatedCardDecoration.copyWith(
+                    decoration: AppTheme.elevatedCard.copyWith(
                       border: Border.all(
                         color: (cat['color'] as Color).withOpacity(0.3),
                         width: 2,
@@ -86,7 +86,7 @@ class StarStoryScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: (cat['color'] as Color).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                           ),
                           child: Icon(
                             cat['icon'] as IconData,
@@ -102,7 +102,7 @@ class StarStoryScreen extends StatelessWidget {
                             children: [
                               Text(
                                 cat['title'] as String,
-                                style: AppTheme.cardTitle,
+                                style: AppTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(

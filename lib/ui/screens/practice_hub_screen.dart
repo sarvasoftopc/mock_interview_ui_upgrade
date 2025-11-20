@@ -56,7 +56,7 @@ class PracticeHubScreen extends StatelessWidget {
                   padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Choose a skill to practice',
-                    style: AppTheme.sectionTitle,
+                    style: AppTheme.titleMedium,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -111,7 +111,7 @@ class _SkillCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        decoration: AppTheme.elevatedCardDecoration.copyWith(
+        decoration: AppTheme.elevatedCard.copyWith(
           gradient: LinearGradient(
             colors: [color, color.withOpacity(0.7)],
             begin: Alignment.topLeft,

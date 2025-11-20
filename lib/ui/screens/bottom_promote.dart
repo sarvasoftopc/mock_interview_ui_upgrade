@@ -39,7 +39,7 @@ class BottomPromote extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
                   child: const Icon(
                     Icons.workspace_premium,
@@ -87,7 +87,7 @@ class BottomPromote extends StatelessWidget {
                   foregroundColor: AppTheme.primaryPurple,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
                   elevation: 0,
                 ),

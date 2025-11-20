@@ -81,8 +81,7 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
       backgroundColor: AppTheme.backgroundLight,
       appBar: CustomAppBar(
         context: context,
-        titleText: 'Skill Dashboard',
-        backgroundColor: Colors.white,
+        titleText: 'Skill Dashboard'
       ),
       drawer: const AppDrawer(),
       body: hasAnalysis

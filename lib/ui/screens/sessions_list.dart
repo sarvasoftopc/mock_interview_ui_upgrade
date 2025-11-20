@@ -100,7 +100,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
 
                       return InkWell(
                         onTap: () => context.read<SessionProvider>().openSession(context, s.id, s.sessionType),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                         child: Container(
                           decoration: AppTheme.cardDecoration,
                           padding: const EdgeInsets.all(16),
@@ -133,8 +133,8 @@ class _SessionsScreenState extends State<SessionsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      s.sessionType,
-                                      style: AppTheme.cardTitle.copyWith(fontSize: 18),
+                                      s.sessionType!,
+                                      style: AppTheme.titleMedium.copyWith(fontSize: 18),
                                     ),
                                     const SizedBox(height: 4),
                                     Row(
@@ -160,7 +160,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   decoration: BoxDecoration(
                                     gradient: AppTheme.primaryGradient,
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                                   ),
                                   child: Text(
                                     s.score?.toStringAsFixed(1) ?? '-',

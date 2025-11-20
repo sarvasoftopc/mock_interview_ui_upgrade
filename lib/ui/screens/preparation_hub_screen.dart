@@ -34,7 +34,7 @@ class PreparationHubScreen extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Prepare for Success',
-                  style: AppTheme.sectionTitle,
+                  style: AppTheme.titleMedium,
                 ),
               ),
               const SizedBox(height: 8),
@@ -124,8 +124,8 @@ class PreparationHubScreen extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           gradient: gradient,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          boxShadow: AppTheme.cardShadow,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          boxShadow: AppTheme.shadowMd,
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),

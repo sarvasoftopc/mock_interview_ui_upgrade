@@ -117,9 +117,9 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         gradient: AppTheme.primaryGradient,
-        boxShadow: AppTheme.cardShadow,
+        boxShadow: AppTheme.cardDecoration.boxShadow,
       ),
       child: isWide
           ? Row(
@@ -158,7 +158,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
             ),
             child: ElevatedButton.icon(
               onPressed: () => Navigator.pushNamed(context, '/practice'),
@@ -168,7 +168,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
                 backgroundColor: Colors.white,
                 foregroundColor: AppTheme.primaryPurple,
                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSmall)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
                 elevation: 0,
               ),
             ),
@@ -181,7 +181,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
               foregroundColor: Colors.white,
               side: const BorderSide(color: Colors.white, width: 2),
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSmall)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
             ),
           ),
         ]),
@@ -204,7 +204,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Column(
@@ -223,7 +223,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       aspectRatio: 16 / 9,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           color: Colors.white.withOpacity(0.1),
           border: Border.all(color: Colors.white.withOpacity(0.2)),
         ),
@@ -240,8 +240,8 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: AppTheme.cardShadow,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        boxShadow: AppTheme.shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +289,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.primaryLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.2)),
       ),
       child: Column(
@@ -317,8 +317,8 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        boxShadow: AppTheme.lightShadow,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        boxShadow: AppTheme.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +367,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppTheme.primaryLight,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3)),
         ),
         child: Row(
@@ -528,7 +528,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppTheme.primaryLight,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, color: AppTheme.primaryPurple, size: 20),
@@ -571,9 +571,9 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
   Widget _cvJdAnalysisCard(BuildContext context, CvJdProvider cvJdProvider) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
         gradient: AppTheme.primaryGradient,
-        boxShadow: AppTheme.cardShadow,
+        boxShadow: AppTheme.shadowSm,
       ),
       padding: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -602,7 +602,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
                 backgroundColor: Colors.white,
                 foregroundColor: AppTheme.primaryPurple,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall)),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
               ),
             ),
           ),
@@ -619,7 +619,7 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
                 backgroundColor: Colors.white,
                 foregroundColor: AppTheme.primaryPurple,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall)),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
               ),
             ),
           ),
@@ -658,14 +658,14 @@ class _HomeScreenModernState extends State<HomeScreenModern> {
           : () => Navigator.pushNamed(context, route),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           gradient: disabled
               ? LinearGradient(
                   colors: [Colors.grey.shade300, Colors.grey.shade200],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight)
               : AppTheme.primaryGradient,
-          boxShadow: AppTheme.lightShadow,
+          boxShadow: AppTheme.shadowSm,
         ),
         padding: const EdgeInsets.all(16),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [

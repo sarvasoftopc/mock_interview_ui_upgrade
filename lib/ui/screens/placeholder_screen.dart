@@ -37,7 +37,7 @@ class PlaceholderScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppTheme.primaryLight,
-                    boxShadow: AppTheme.lightShadow,
+                    boxShadow: AppTheme.shadowMd,
                   ),
                   child: Icon(
                     Icons.construction,
@@ -48,7 +48,7 @@ class PlaceholderScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 Text(
                   title,
-                  style: AppTheme.pageTitle,
+                  style: AppTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),

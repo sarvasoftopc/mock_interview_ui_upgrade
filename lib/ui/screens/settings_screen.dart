@@ -41,7 +41,7 @@ class SettingsScreen extends StatelessWidget {
                       _buildInfoRow(
                         Icons.email_outlined,
                         'Email',
-                        authProvider.user?.email ?? 'Not logged in',
+                        authProvider.userId ?? 'Not logged in',
                       ),
                       const Divider(),
                       _buildInfoRow(
@@ -113,7 +113,7 @@ class SettingsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       border: Border.all(color: Colors.red.shade200),
                     ),
                     child: Column(
@@ -191,7 +191,7 @@ class SettingsScreen extends StatelessWidget {
     required List<Widget> children,
   }) {
     return Container(
-      decoration: AppTheme.elevatedCardDecoration,
+      decoration: AppTheme.elevatedCard,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -203,7 +203,7 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   title,
-                  style: AppTheme.cardTitle,
+                  style: AppTheme.titleMedium,
                 ),
               ],
             ),

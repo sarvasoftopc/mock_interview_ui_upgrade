@@ -121,7 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             elevation: 4,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
-                                    BorderRadius.circular(AppTheme.radiusLarge)),
+                                    BorderRadius.circular(AppTheme.radiusLg)),
                             child: Padding(
                               padding: const EdgeInsets.all(24),
                               child: Column(
@@ -214,7 +214,7 @@ class _BrandFeature extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Row(

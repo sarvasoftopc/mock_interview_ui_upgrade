@@ -23,6 +23,7 @@ import 'package:sarvasoft_moc_interview/ui/screens/skill_dashboard_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/splash_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/star_story_bank_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/user_insights.dart';
+import 'package:sarvasoft_moc_interview/ui/screens/user_insights_old.dart';
 
 import 'generated/l10n.dart'; // 👈 import your AppLocalizations
 import 'providers/providers.dart';

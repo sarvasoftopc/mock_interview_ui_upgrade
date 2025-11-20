@@ -478,7 +478,7 @@ class ApiServiceImpl implements ApiService {
       throw AuthException("Not authenticated");
     }
 
-    final response = await http.get(
+    final response = await http.post(
       Uri.parse("$baseUrl/insights/get-insights/"),
       headers: {
         "Content-Type": "application/json",

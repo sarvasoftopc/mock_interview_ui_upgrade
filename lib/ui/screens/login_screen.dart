@@ -262,7 +262,7 @@ class _FeatureChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Row(

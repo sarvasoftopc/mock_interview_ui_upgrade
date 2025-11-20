@@ -15,7 +15,7 @@ class CandidateProfileScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon != null) ..[
+          if (icon != null) ...[
             Icon(icon, size: 20, color: AppTheme.primaryPurple),
             const SizedBox(width: 12),
           ],
@@ -45,7 +45,7 @@ class CandidateProfileScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (icon != null) ..[
+              if (icon != null) ...[
                 Icon(icon, size: 20, color: AppTheme.primaryPurple),
                 const SizedBox(width: 12),
               ],
@@ -131,7 +131,7 @@ class CandidateProfileScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     const Text(
                       'No profile found',
-                      style: AppTheme.pageTitle,
+                      style: AppTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
                     GradientButton(
@@ -153,8 +153,8 @@ class CandidateProfileScreen extends StatelessWidget {
                         Container(
                           decoration: BoxDecoration(
                             gradient: AppTheme.primaryGradient,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                            boxShadow: AppTheme.cardShadow,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            boxShadow: AppTheme.cardDecoration.boxShadow,
                           ),
                           padding: const EdgeInsets.all(32),
                           child: Row(
@@ -303,7 +303,7 @@ class CandidateProfileScreen extends StatelessWidget {
 
   Widget _buildInfoCard(List<Widget> children) {
     return Container(
-      decoration: AppTheme.elevatedCardDecoration,
+      decoration: AppTheme.cardDecoration,
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

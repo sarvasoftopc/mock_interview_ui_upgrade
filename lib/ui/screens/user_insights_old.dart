@@ -160,12 +160,12 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
 
               // Trend Chart
               Container(
-                decoration: AppTheme.elevatedCardDecoration,
+                decoration: AppTheme.elevatedCard,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Performance Trends', style: AppTheme.cardTitle),
+                    const Text('Performance Trends', style: AppTheme.titleMedium),
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 220,
@@ -231,8 +231,8 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
               Container(
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                  boxShadow: AppTheme.cardShadow,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                  boxShadow: AppTheme.shadowMd,
                 ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -276,12 +276,12 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
 
               // Top Skills
               Container(
-                decoration: AppTheme.elevatedCardDecoration,
+                decoration: AppTheme.elevatedCard,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Top Skills', style: AppTheme.cardTitle),
+                    const Text('Top Skills', style: AppTheme.titleMedium),
                     const SizedBox(height: 12),
                     if (topSkills.isEmpty)
                       const Padding(
@@ -314,12 +314,12 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
 
               // Weakest Skills
               Container(
-                decoration: AppTheme.elevatedCardDecoration,
+                decoration: AppTheme.elevatedCard,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Areas to Improve', style: AppTheme.cardTitle),
+                    const Text('Areas to Improve', style: AppTheme.titleMedium),
                     const SizedBox(height: 12),
                     ...((data['weakest_skills'] as List?) ?? []).map((w) {
                       return ListTile(

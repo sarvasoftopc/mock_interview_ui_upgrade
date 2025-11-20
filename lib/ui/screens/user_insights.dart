@@ -62,8 +62,7 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
       backgroundColor: AppTheme.backgroundLight,
       appBar: CustomAppBar(
         context: context,
-        titleText: 'Performance Insights',
-        backgroundColor: Colors.white,
+        titleText: 'Performance Insights'
       ),
       drawer: const AppDrawer(),
       body: sessionProvider.loading

@@ -88,8 +88,8 @@ class MockInterviewScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      boxShadow: AppTheme.cardShadow,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                      boxShadow: AppTheme.shadowSm,
                     ),
                     padding: const EdgeInsets.all(20),
                     child: Column(

@@ -49,8 +49,8 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      boxShadow: AppTheme.cardShadow,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                      boxShadow: AppTheme.shadowSm,
                     ),
                     child: Column(
                       children: [
@@ -85,7 +85,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                   // Panel Size Selection
                   Container(
                     padding: const EdgeInsets.all(20),
-                    decoration: AppTheme.elevatedCardDecoration,
+                    decoration: AppTheme.elevatedCard,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -95,7 +95,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                             const SizedBox(width: 12),
                             const Text(
                               'Select Panel Size',
-                              style: AppTheme.cardTitle,
+                              style: AppTheme.titleMedium,
                             ),
                           ],
                         ),
@@ -113,7 +113,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                                       _selectedPanelists.clear();
                                     });
                                   },
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                   child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
@@ -123,7 +123,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                                       color: _selectedPanelSize == size
                                           ? null
                                           : AppTheme.primaryLight.withOpacity(0.3),
-                                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                       border: Border.all(
                                         color: _selectedPanelSize == size
                                             ? Colors.transparent
@@ -169,7 +169,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                   // Panelist Selection
                   Container(
                     padding: const EdgeInsets.all(20),
-                    decoration: AppTheme.elevatedCardDecoration,
+                    decoration: AppTheme.elevatedCard,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -179,7 +179,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                             const SizedBox(width: 12),
                             Text(
                               'Choose ${_selectedPanelSize} Panelists',
-                              style: AppTheme.cardTitle,
+                              style: AppTheme.titleMedium,
                             ),
                           ],
                         ),
@@ -201,14 +201,14 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                                   }
                                 });
                               },
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppTheme.primaryLight
                                       : Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                   border: Border.all(
                                     color: isSelected
                                         ? AppTheme.primaryPurple
@@ -222,7 +222,7 @@ class _PanelInterviewScreenState extends State<PanelInterviewScreen> {
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
                                         color: (panelist['color'] as Color).withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                                       ),
                                       child: Icon(
                                         panelist['icon'] as IconData,

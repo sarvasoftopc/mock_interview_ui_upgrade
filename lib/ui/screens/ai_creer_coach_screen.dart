@@ -67,14 +67,14 @@ class CareerCoachScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: option['gradient'] as List<Color>,
                         ),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                        boxShadow: AppTheme.cardShadow,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                        boxShadow: AppTheme.cardDecoration.boxShadow,
                       ),
                       padding: const EdgeInsets.all(24),
                       child: Row(
@@ -83,7 +83,7 @@ class CareerCoachScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                             ),
                             child: Icon(
                               option['icon'] as IconData,

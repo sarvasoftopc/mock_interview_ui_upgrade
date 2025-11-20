@@ -34,7 +34,7 @@ class ModernButton extends StatelessWidget {
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ..[
+              if (icon != null) ...[
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
@@ -274,7 +274,7 @@ class ModernBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ..[
+          if (icon != null) ...[
             Icon(icon, size: 14, color: effectiveColor),
             const SizedBox(width: 6),
           ],
@@ -282,7 +282,7 @@ class ModernBadge extends StatelessWidget {
             label,
             style: AppTheme.labelMedium.copyWith(color: effectiveColor),
           ),
-          if (onDelete != null) ..[
+          if (onDelete != null) ...[
             const SizedBox(width: 6),
             GestureDetector(
               onTap: onDelete,
@@ -341,7 +341,7 @@ class EmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 3,
             ),
-            if (actionText != null && onAction != null) ..[
+            if (actionText != null && onAction != null) ...[
               const SizedBox(height: AppTheme.space6),
               ModernButton(
                 text: actionText!,
@@ -380,7 +380,7 @@ class SectionHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: AppTheme.headlineSmall),
-                if (subtitle != null) ..[
+                if (subtitle != null) ...[
                   const SizedBox(height: AppTheme.space1),
                   Text(subtitle!, style: AppTheme.bodyMedium),
                 ],
@@ -422,7 +422,7 @@ class LoadingOverlay extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const CircularProgressIndicator(),
-                    if (message != null) ..[
+                    if (message != null) ...[
                       const SizedBox(height: AppTheme.space4),
                       Text(message!, style: AppTheme.bodyMedium),
                     ],

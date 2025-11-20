@@ -91,7 +91,7 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: Container(
-                decoration: AppTheme.elevatedCardDecoration,
+                decoration: AppTheme.cardDecoration,
                 padding: EdgeInsets.all(isWide ? 40 : 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -103,7 +103,7 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: AppTheme.primaryGradient,
-                        boxShadow: AppTheme.cardShadow,
+                        boxShadow: AppTheme.cardDecoration.boxShadow,
                       ),
                       child: const Icon(
                         Icons.mark_email_unread,
@@ -115,7 +115,7 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                     // Title
                     const Text(
                       'Check Your Email',
-                      style: AppTheme.pageTitle,
+                      style: AppTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
@@ -158,13 +158,13 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                       onPressed: _resend,
                     ),
                     // Message Display
-                    if (_message != null) ..[
+                    if (_message != null) ...[
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: _messageColor?.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                           border: Border.all(
                             color: _messageColor?.withOpacity(0.3) ?? Colors.grey,
                           ),
@@ -184,7 +184,7 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryLight.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                       child: Row(
                         children: [

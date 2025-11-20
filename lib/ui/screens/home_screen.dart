@@ -49,8 +49,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       drawer: const AppDrawer(),
       appBar: CustomAppBar(
         context: context,
-        titleText: 'Capabily',
-        backgroundColor: Colors.white,
+        titleText: 'Capabily'
       ),
       body: LoadingOverlay(
         isLoading: cvJdProvider.loading,
@@ -190,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            if (isWide) ..[
+            if (isWide) ...[
               const SizedBox(width: AppTheme.space8),
               Container(
                 width: 280,
@@ -376,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ? () => CvJDAnalysis().performSkillAnalysis(context, provider)
                 : null,
           ),
-          if (provider.matchScore != null) ..[
+          if (provider.matchScore != null) ...[
             const SizedBox(height: AppTheme.space4),
             Container(
               padding: const EdgeInsets.all(AppTheme.space4),

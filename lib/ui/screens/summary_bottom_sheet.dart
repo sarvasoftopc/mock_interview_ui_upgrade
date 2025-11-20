@@ -89,7 +89,7 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       ),
                       child: const Icon(
                         Icons.summarize,
@@ -101,7 +101,7 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                     const Expanded(
                       child: Text(
                         "Analysis Summary",
-                        style: AppTheme.cardTitle,
+                        style: AppTheme.titleMedium,
                       ),
                     ),
                     IconButton(
@@ -127,7 +127,7 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                             border: Border.all(
                               color: AppTheme.primaryPurple.withOpacity(0.2),
                             ),

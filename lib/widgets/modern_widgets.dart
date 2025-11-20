@@ -26,7 +26,7 @@ class GradientButton extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         boxShadow: [
           BoxShadow(
             color: AppTheme.primaryPurple.withOpacity(0.4),
@@ -42,7 +42,7 @@ class GradientButton extends StatelessWidget {
           shadowColor: Colors.transparent,
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
         ),
         child: isLoading
@@ -147,8 +147,8 @@ class FeatureCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: disabled ? Colors.grey[200] : Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          boxShadow: AppTheme.cardShadow,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          boxShadow: AppTheme.shadowMd,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +157,7 @@ class FeatureCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: AppTheme.cardTitle,
+              style: AppTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
@@ -201,7 +201,7 @@ class InterviewTypeCard extends StatelessWidget {
             color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE2E8F0),
             width: isSelected ? 3 : 2,
           ),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         ),
         child: Column(
           children: [
