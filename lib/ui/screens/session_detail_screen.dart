@@ -132,7 +132,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               await _ensureAnalysisLoaded();
             },
             tooltip: 'Refresh analysis',
-          )
+          ),
         ],
       ),
       body: _loading
@@ -140,26 +140,26 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               child: CircularProgressIndicator(color: AppTheme.primaryPurple),
             )
           : (_error != null)
-              ? EmptyState(
-                  icon: Icons.error_outline,
-                  title: 'Error Loading Analysis',
-                  description: _error!,
-                  actionText: 'Retry',
-                  onAction: () async {
-                    setState(() {
-                      _loading = true;
-                      _error = null;
-                    });
-                    await _ensureAnalysisLoaded();
-                  },
-                )
-              : (_analysis == null)
-                  ? const EmptyState(
-                      icon: Icons.analytics_outlined,
-                      title: 'No Analysis Available',
-                      description: 'Analysis for this session is not available',
-                    )
-                  : _buildBody(context, session, _analysis!, isWide, isTablet),
+          ? EmptyState(
+              icon: Icons.error_outline,
+              title: 'Error Loading Analysis',
+              description: _error!,
+              actionText: 'Retry',
+              onAction: () async {
+                setState(() {
+                  _loading = true;
+                  _error = null;
+                });
+                await _ensureAnalysisLoaded();
+              },
+            )
+          : (_analysis == null)
+          ? const EmptyState(
+              icon: Icons.analytics_outlined,
+              title: 'No Analysis Available',
+              description: 'Analysis for this session is not available',
+            )
+          : _buildBody(context, session, _analysis!, isWide, isTablet),
     );
   }
 
@@ -172,12 +172,16 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   ) {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
-        horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
+        horizontal: isWide
+            ? AppTheme.space12
+            : (isTablet ? AppTheme.space8 : AppTheme.space4),
         vertical: AppTheme.space6,
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
+          constraints: BoxConstraints(
+            maxWidth: isWide ? 1400 : double.infinity,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -306,12 +310,12 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                         });
                       },
               ),
-              
-              if (coaching != null) ..[
+
+              if (coaching != null) ...[
                 const SizedBox(height: AppTheme.space4),
                 _buildCoachingCard(coaching),
               ],
-              
+
               const SizedBox(height: AppTheme.space6),
 
               // Skills & Progress
@@ -365,7 +369,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                             ),
                             decoration: BoxDecoration(
                               gradient: AppTheme.primaryGradient,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
                             child: Text(
                               'Q${idx + 1}',
@@ -432,7 +438,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: AppTheme.space10),
             ],
           ),
@@ -568,7 +574,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                   gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 ),
-                child: const Icon(Icons.psychology, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.psychology,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: AppTheme.space3),
               const Text('AI Coaching', style: AppTheme.titleMedium),
@@ -616,7 +626,10 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 'Problem Solving',
                 analysis.skills_breakdown.problem_solving,
               ),
-              _labeledNumber('Confidence', analysis.skills_breakdown.confidence),
+              _labeledNumber(
+                'Confidence',
+                analysis.skills_breakdown.confidence,
+              ),
             ],
           ),
         ],

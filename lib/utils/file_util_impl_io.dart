@@ -55,16 +55,14 @@ class FileUtil {
         final xmlDoc = XmlDocument.parse(xmlString);
         final nodes = xmlDoc.findAllElements('w:t');
         for (final node in nodes) {
-          text += node.text + ' ';
+          text += '${node.text} ';
         }
       }
     }
     return text;
   }
 
-  static Future<FileResult?> fileSelector(
-      BuildContext context
-      ) async {
+  static Future<FileResult?> fileSelector(BuildContext context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -80,10 +78,10 @@ class FileUtil {
       final pickedFile = result.files.single;
       debugPrint(
         "FilePicker: Picked file -> "
-            "name=${pickedFile.name}, "
-            "path=${pickedFile.path}, "
-            "size=${pickedFile.size}, "
-            "bytesAvailable=${pickedFile.bytes != null}",
+        "name=${pickedFile.name}, "
+        "path=${pickedFile.path}, "
+        "size=${pickedFile.size}, "
+        "bytesAvailable=${pickedFile.bytes != null}",
       );
 
       String text = "";
@@ -100,7 +98,7 @@ class FileUtil {
             final bytes = await File(filePath).readAsBytes();
             text = await readDocxFileFromBytes(bytes);
           } else {
-            text = AppLocalizations.of(context)!.unsupportedFile;
+            text = AppLocalizations.of(context).unsupportedFile;
           }
         }
         // ✅ Case 2: no path, but in-memory bytes available (Android 11+ SAF)
@@ -112,17 +110,16 @@ class FileUtil {
           } else if (pickedFile.name.endsWith('.docx')) {
             text = await readDocxFileFromBytes(pickedFile.bytes!);
           } else {
-            text = AppLocalizations.of(context)!.unsupportedFile;
+            text = AppLocalizations.of(context).unsupportedFile;
           }
         } else {
-          text = AppLocalizations.of(context)!.unsupportedFile;
+          text = AppLocalizations.of(context).unsupportedFile;
           debugPrint("FilePicker: Unsupported file source, no path or bytes.");
         }
       } catch (e, st) {
-        text = '${AppLocalizations.of(context)!.errorReadingFile}: $e';
+        text = '${AppLocalizations.of(context).errorReadingFile}: $e';
         debugPrint("FilePicker: Error while reading file -> $e\n$st");
       }
-
 
       // ✅ Clear FilePicker cache to save space
       await clearFilePickerCache();
@@ -135,16 +132,16 @@ class FileUtil {
     }
     return null;
   }
-// Add your file utility methods here
-  static Future<void> selectFile(
-      BuildContext context,
-      bool isCv,
-      CvJdProvider cvJdProvider,
-      ) async {
-    try {
 
+  // Add your file utility methods here
+  static Future<void> selectFile(
+    BuildContext context,
+    bool isCv,
+    CvJdProvider cvJdProvider,
+  ) async {
+    try {
       FileResult? fileResult = await fileSelector(context);
-      if(fileResult!=null){
+      if (fileResult != null) {
         String text = fileResult.text;
         // ✅ Update provider
         if (isCv) {

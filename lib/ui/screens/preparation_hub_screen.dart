@@ -5,13 +5,15 @@ import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 
 class PreparationHubScreen extends StatelessWidget {
-  const PreparationHubScreen({Key? key}) : super(key: key);
+  const PreparationHubScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 900;
-    final isTablet = MediaQuery.of(context).size.width > 600 && MediaQuery.of(context).size.width <= 900;
-    
+    final isTablet =
+        MediaQuery.of(context).size.width > 600 &&
+        MediaQuery.of(context).size.width <= 900;
+
     int crossAxisCount = isWide ? 3 : (isTablet ? 2 : 1);
 
     return Scaffold(
@@ -32,10 +34,7 @@ class PreparationHubScreen extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Prepare for Success',
-                  style: AppTheme.titleMedium,
-                ),
+                child: Text('Prepare for Success', style: AppTheme.titleMedium),
               ),
               const SizedBox(height: 8),
               const Padding(
@@ -82,7 +81,9 @@ class PreparationHubScreen extends StatelessWidget {
                     context,
                     icon: Icons.school,
                     title: AppLocalizations.of(context).skillTutorials,
-                    description: AppLocalizations.of(context).skillTutorialsDesc,
+                    description: AppLocalizations.of(
+                      context,
+                    ).skillTutorialsDesc,
                     gradient: const LinearGradient(
                       colors: [Color(0xFF4FACFE), Color(0xFF00F2FE)],
                     ),
@@ -154,10 +155,7 @@ class PreparationHubScreen extends StatelessWidget {
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

@@ -127,8 +127,6 @@ import '../../providers/profile_provider.dart';
 //   }
 // }
 
-
-
 class MockInterviewRolePage extends StatefulWidget {
   const MockInterviewRolePage({super.key});
 
@@ -148,7 +146,7 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
     'DevOps Engineer',
     'Mobile Developer',
     'AI/ML Engineer',
-    'UI/UX Designer'
+    'UI/UX Designer',
   ];
 
   bool _includeBehavioral = true;
@@ -185,7 +183,8 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
         if (!mounted) return;
         setState(() {
           _loadingProfile = false;
-          _profileSkills = provider.profile?.skills.map((e) => e.toString()).toList() ?? [];
+          _profileSkills =
+              provider.profile?.skills.map((e) => e.toString()).toList() ?? [];
           // default: pre-select top 4 skills (or all if less)
           final initial = _profileSkills.take(4).toList();
           _selectedSkills.clear();
@@ -203,10 +202,11 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
 
   void _toggleSkill(String s, bool add) {
     setState(() {
-      if (add)
+      if (add) {
         _selectedSkills.add(s);
-      else
+      } else {
         _selectedSkills.remove(s);
+      }
     });
   }
 
@@ -227,11 +227,15 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
 
   Future<void> _startRoleInterview(BuildContext context) async {
     if (_selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please choose a role first')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please choose a role first')),
+      );
       return;
     }
     if (_selectedSkills.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select at least one skill to practice')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select at least one skill to practice')),
+      );
       return;
     }
     //
@@ -248,13 +252,19 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
     final provider = context.read<InterviewProvider>();
     final cvJdProvider = context.read<CvJdProvider>();
 
-
     // fetch analysis & questions (provider handles repeated calls / caching)
-    await cvJdProvider.startSkillSession(skills: _selectedSkills.toList(), difficulty: _difficulty.toInt(),useVoice: true,includeBehavioral: _includeBehavioral,mode: "role",role: _selectedRole);
+    await cvJdProvider.startSkillSession(
+      skills: _selectedSkills.toList(),
+      difficulty: _difficulty.toInt(),
+      useVoice: true,
+      includeBehavioral: _includeBehavioral,
+      mode: "role",
+      role: _selectedRole,
+    );
 
     debugPrint("current session with session id:${cvJdProvider.sessionId}");
     provider.loadQuestions(cvJdProvider.questions);
-    provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+    provider.startSession(cvJdProvider.sessionId, SessionType.normal);
 
     Navigator.of(context).pushNamed('/question');
   }
@@ -279,129 +289,215 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
       appBar: AppBar(title: const Text('Role-based Mock Interview')),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: isWide ? 48 : 16, vertical: 18),
+          padding: EdgeInsets.symmetric(
+            horizontal: isWide ? 48 : 16,
+            vertical: 18,
+          ),
           child: SingleChildScrollView(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Role-based Interview', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const Text('Select a role and the skills (from your profile) you want to practice. The interview will use voice + text.'),
-              const SizedBox(height: 14),
-
-              // Role selector
-              DropdownButtonFormField<String>(
-                value: _selectedRole,
-                hint: const Text('Choose role'),
-                items: _roles.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
-                onChanged: (v) => setState(() => _selectedRole = v),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Role-based Interview',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Select a role and the skills (from your profile) you want to practice. The interview will use voice + text.',
+                ),
+                const SizedBox(height: 14),
 
-              const SizedBox(height: 14),
-
-              // Difficulty slider and behavioral
-              Row(children: [
-                const Text('Difficulty:', style: TextStyle(fontWeight: FontWeight.w600)),
-                Expanded(
-                  child: Slider(
-                    value: _difficulty,
-                    min: 1,
-                    max: 3,
-                    divisions: 2,
-                    label: _difficulty == 1 ? 'Easy' : (_difficulty == 2 ? 'Medium' : 'Hard'),
-                    onChanged: (v) => setState(() => _difficulty = v),
+                // Role selector
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedRole,
+                  hint: const Text('Choose role'),
+                  items: _roles
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedRole = v),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-                Text(_difficulty == 1 ? 'Easy' : (_difficulty == 2 ? 'Medium' : 'Hard'), style: const TextStyle(fontWeight: FontWeight.w500)),
-              ]),
 
-              const SizedBox(height: 8),
-              Row(children: [
-                Switch(value: _includeBehavioral, onChanged: (v) => setState(() => _includeBehavioral = v)),
-                const SizedBox(width: 8),
-                const Text('Include Behavioral Questions'),
-              ]),
+                const SizedBox(height: 14),
 
-              const SizedBox(height: 16),
-
-              // Profile skills section
-              Card(
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      const Text('Skills from your Profile', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                      const Spacer(),
-                      if (_loadingProfile) const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                      IconButton(
-                        icon: Icon(_showProfileSkills ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
-                        onPressed: () => setState(() => _showProfileSkills = !_showProfileSkills),
-                      ),
-                    ]),
-                    AnimatedCrossFade(
-                      firstChild: _buildProfileSkillsBox(),
-                      secondChild: const SizedBox.shrink(),
-                      crossFadeState: _showProfileSkills ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                      duration: const Duration(milliseconds: 200),
+                // Difficulty slider and behavioral
+                Row(
+                  children: [
+                    const Text(
+                      'Difficulty:',
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      TextButton(
-                        onPressed: () {
-                          // select all
-                          setState(() => _selectedSkills.addAll(_profileSkills));
-                        },
-                        child: const Text('Select all'),
+                    Expanded(
+                      child: Slider(
+                        value: _difficulty,
+                        min: 1,
+                        max: 3,
+                        divisions: 2,
+                        label: _difficulty == 1
+                            ? 'Easy'
+                            : (_difficulty == 2 ? 'Medium' : 'Hard'),
+                        onChanged: (v) => setState(() => _difficulty = v),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() => _selectedSkills.clear());
-                        },
-                        child: const Text('Clear selection'),
+                    ),
+                    Text(
+                      _difficulty == 1
+                          ? 'Easy'
+                          : (_difficulty == 2 ? 'Medium' : 'Hard'),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Switch(
+                      value: _includeBehavioral,
+                      onChanged: (v) => setState(() => _includeBehavioral = v),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('Include Behavioral Questions'),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Profile skills section
+                Card(
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              'Skills from your Profile',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (_loadingProfile)
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                _showProfileSkills
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                              ),
+                              onPressed: () => setState(
+                                () => _showProfileSkills = !_showProfileSkills,
+                              ),
+                            ),
+                          ],
+                        ),
+                        AnimatedCrossFade(
+                          firstChild: _buildProfileSkillsBox(),
+                          secondChild: const SizedBox.shrink(),
+                          crossFadeState: _showProfileSkills
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          duration: const Duration(milliseconds: 200),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                // select all
+                                setState(
+                                  () => _selectedSkills.addAll(_profileSkills),
+                                );
+                              },
+                              child: const Text('Select all'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() => _selectedSkills.clear());
+                              },
+                              child: const Text('Clear selection'),
+                            ),
+                            const Spacer(),
+                            // quick add UI small
+                            TextButton.icon(
+                              onPressed: () async {
+                                final added = await _showAddSkillDialog();
+                                if (added != null && added.trim().isNotEmpty)
+                                  _addCustomSkill(added);
+                              },
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add skill'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Selected skills summary
+                const Text(
+                  'Selected Skills',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                _selectedSkills.isEmpty
+                    ? const Text(
+                        'No skills selected yet. Choose from your profile skills above or add a custom one.',
+                      )
+                    : Container(
+                        constraints: const BoxConstraints(maxHeight: 110),
+                        child: SingleChildScrollView(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _selectedSkills
+                                .map((s) => Chip(label: Text(s)))
+                                .toList(),
+                          ),
+                        ),
                       ),
-                      const Spacer(),
-                      // quick add UI small
-                      TextButton.icon(
-                        onPressed: () async {
-                          final added = await _showAddSkillDialog();
-                          if (added != null && added.trim().isNotEmpty) _addCustomSkill(added);
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add skill'),
+
+                const SizedBox(height: 20),
+
+                // Start button
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectedSkills.isEmpty
+                        ? null
+                        : () => _startRoleInterview(context),
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
                       ),
-                    ]),
-                  ]),
+                      child: Text('Start Interview'),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 18),
-
-              // Selected skills summary
-              const Text('Selected Skills', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              _selectedSkills.isEmpty
-                  ? const Text('No skills selected yet. Choose from your profile skills above or add a custom one.')
-                  : Container(
-                constraints: const BoxConstraints(maxHeight: 110),
-                child: SingleChildScrollView(
-                  child: Wrap(spacing: 8, runSpacing: 8, children: _selectedSkills.map((s) => Chip(label: Text(s))).toList()),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Start button
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectedSkills.isEmpty ? null : () => _startRoleInterview(context),
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), child: Text('Start Interview')),
-                  style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                ),
-              ),
-            ]),
+              ],
+            ),
           ),
         ),
       ),
@@ -410,12 +506,17 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
 
   Widget _buildProfileSkillsBox() {
     if (_loadingProfile) {
-      return const Padding(padding: EdgeInsets.all(12), child: Center(child: CircularProgressIndicator()));
+      return const Padding(
+        padding: EdgeInsets.all(12),
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (_profileSkills.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(12.0),
-        child: Text('No skills found in your profile. Upload CV on your Profile page to extract skills.'),
+        child: Text(
+          'No skills found in your profile. Upload CV on your Profile page to extract skills.',
+        ),
       );
     }
 
@@ -438,10 +539,19 @@ class _MockInterviewRolePageState extends State<MockInterviewRolePage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Add skill'),
-        content: TextField(controller: ctrl, decoration: const InputDecoration(hintText: 'e.g. API Design')),
+        content: TextField(
+          controller: ctrl,
+          decoration: const InputDecoration(hintText: 'e.g. API Design'),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const Text('Add')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const Text('Add'),
+          ),
         ],
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
-import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 
 class MockInterviewScreen extends StatelessWidget {
@@ -10,39 +9,37 @@ class MockInterviewScreen extends StatelessWidget {
     {
       "title": "Frontend Engineer",
       "icon": Icons.web_asset,
-      "color": Color(0xFF667EEA)
+      "color": Color(0xFF667EEA),
     },
     {
       "title": "Backend Engineer",
       "icon": Icons.dns,
-      "color": Color(0xFF764BA2)
+      "color": Color(0xFF764BA2),
     },
     {
       "title": "Fullstack Engineer",
       "icon": Icons.layers,
-      "color": Color(0xFFF5576C)
+      "color": Color(0xFFF5576C),
     },
     {
       "title": "Data Scientist",
       "icon": Icons.bar_chart,
-      "color": Color(0xFF4FACFE)
+      "color": Color(0xFF4FACFE),
     },
     {
       "title": "Product Manager",
       "icon": Icons.lightbulb,
-      "color": Color(0xFF43E97B)
+      "color": Color(0xFF43E97B),
     },
-    {
-      "title": "HR Interview",
-      "icon": Icons.people,
-      "color": Color(0xFFF093FB)
-    },
+    {"title": "HR Interview", "icon": Icons.people, "color": Color(0xFFF093FB)},
   ];
 
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 900;
-    final isTablet = MediaQuery.of(context).size.width > 600 && MediaQuery.of(context).size.width <= 900;
+    final isTablet =
+        MediaQuery.of(context).size.width > 600 &&
+        MediaQuery.of(context).size.width <= 900;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +54,9 @@ class MockInterviewScreen extends StatelessWidget {
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isWide ? 1000 : double.infinity),
+            constraints: BoxConstraints(
+              maxWidth: isWide ? 1000 : double.infinity,
+            ),
             child: GridView.builder(
               padding: EdgeInsets.all(isWide ? 32 : 16),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -121,10 +120,7 @@ class MockInterviewScreen extends StatelessWidget {
                         const Text(
                           "Simulate a full role-based interview",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                       ],
                     ),

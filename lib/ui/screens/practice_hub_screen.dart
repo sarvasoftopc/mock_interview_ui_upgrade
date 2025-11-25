@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_theme.dart';
-import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 
 /// Modern Practice Hub Screen with upgraded UI
@@ -17,7 +16,11 @@ class PracticeHubScreen extends StatelessWidget {
     {"name": "System Design", "icon": Icons.account_tree, "color": 0xFF667EEA},
     {"name": "Algorithms", "icon": Icons.functions, "color": 0xFF764BA2},
     {"name": "Behavioral", "icon": Icons.people_alt, "color": 0xFF667EEA},
-    {"name": "HR / Soft Skills", "icon": Icons.record_voice_over, "color": 0xFF764BA2},
+    {
+      "name": "HR / Soft Skills",
+      "icon": Icons.record_voice_over,
+      "color": 0xFF764BA2,
+    },
   ];
 
   int _columnsForWidth(double width) {
@@ -40,54 +43,58 @@ class PracticeHubScreen extends StatelessWidget {
       drawer: const AppDrawer(),
       body: Container(
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
-        child: LayoutBuilder(builder: (context, constraints) {
-          final crossAxis = _columnsForWidth(constraints.maxWidth);
-          final padding = EdgeInsets.symmetric(
-            horizontal: constraints.maxWidth > 1000 ? 32 : 16,
-            vertical: 16,
-          );
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final crossAxis = _columnsForWidth(constraints.maxWidth);
+            final padding = EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth > 1000 ? 32 : 16,
+              vertical: 16,
+            );
 
-          return SingleChildScrollView(
-            padding: padding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Choose a skill to practice',
-                    style: AppTheme.titleMedium,
+            return SingleChildScrollView(
+              padding: padding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Choose a skill to practice',
+                      style: AppTheme.titleMedium,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: skills.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxis,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: crossAxis == 1 ? 2.5 : 1.3,
+                  const SizedBox(height: 16),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: skills.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxis,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: crossAxis == 1 ? 2.5 : 1.3,
+                    ),
+                    itemBuilder: (context, index) {
+                      final skill = skills[index];
+                      return _SkillCard(
+                        icon: skill['icon'] as IconData,
+                        title: skill['name'] as String,
+                        color: Color(skill['color'] as int),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Practice: ${skill['name']}"),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  itemBuilder: (context, index) {
-                    final skill = skills[index];
-                    return _SkillCard(
-                      icon: skill['icon'] as IconData,
-                      title: skill['name'] as String,
-                      color: Color(skill['color'] as int),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Practice: ${skill['name']}")),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -141,10 +148,7 @@ class _SkillCard extends StatelessWidget {
               const SizedBox(height: 4),
               const Text(
                 'Tap to practice',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ],

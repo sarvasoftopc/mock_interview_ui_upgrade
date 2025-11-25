@@ -28,7 +28,8 @@ class AudioRecorder extends StatefulWidget {
   State<AudioRecorder> createState() => _AudioRecorderState();
 }
 
-class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProviderStateMixin {
+class _AudioRecorderState extends State<AudioRecorder>
+    with SingleTickerProviderStateMixin {
   late bool _recording;
   late bool _playing;
   int _seconds = 0;
@@ -40,10 +41,15 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
     super.initState();
     _recording = widget.isRecording;
     _playing = false;
-    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
     _pulseController.addStatusListener((s) {
-      if (s == AnimationStatus.completed) _pulseController.reverse();
-      else if (s == AnimationStatus.dismissed) _pulseController.forward();
+      if (s == AnimationStatus.completed) {
+        _pulseController.reverse();
+      } else if (s == AnimationStatus.dismissed)
+        _pulseController.forward();
     });
     if (_recording) _pulseController.forward();
   }
@@ -128,10 +134,7 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
           animation: _pulseController,
           builder: (context, child) {
             final scale = 1 + (_pulseController.value * 0.18);
-            return Transform.scale(
-              scale: scale,
-              child: child,
-            );
+            return Transform.scale(scale: scale, child: child);
           },
           child: InkWell(
             borderRadius: BorderRadius.circular(999),
@@ -142,17 +145,21 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: _recording ? [color.withOpacity(0.95), color] : [Colors.indigo.shade400, Colors.indigo.shade700],
+                  colors: _recording
+                      ? [color.withOpacity(0.95), color]
+                      : [Colors.indigo.shade400, Colors.indigo.shade700],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 boxShadow: [
-                  BoxShadow(color: color.withOpacity(0.28), blurRadius: 12, offset: const Offset(0, 6)),
+                  BoxShadow(
+                    color: color.withOpacity(0.28),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
                 ],
               ),
-              child: Center(
-                child: Icon(icon, size: 40, color: Colors.white),
-              ),
+              child: Center(child: Icon(icon, size: 40, color: Colors.white)),
             ),
           ),
         ),
@@ -164,10 +171,14 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.fiber_manual_record, size: 12, color: Colors.redAccent),
+              const Icon(
+                Icons.fiber_manual_record,
+                size: 12,
+                color: Colors.redAccent,
+              ),
               const SizedBox(width: 6),
               Text(
-                '${_formatDuration(_seconds)}',
+                _formatDuration(_seconds),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
@@ -175,7 +186,10 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
         else
           Text(
             'Tap to $label',
-            style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
           ),
       ],
     );
@@ -203,10 +217,14 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
           icon: Icon(_playing ? Icons.stop : Icons.play_arrow),
           label: Text(_playing ? 'Stop' : 'Play'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: widget.isPlayEnabled ? Colors.indigo.shade600 : Colors.grey.shade300,
+            backgroundColor: widget.isPlayEnabled
+                ? Colors.indigo.shade600
+                : Colors.grey.shade300,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
 
@@ -217,7 +235,9 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
           label: const Text('Stop Play'),
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
 
@@ -227,10 +247,14 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
           icon: const Icon(Icons.delete_outline),
           label: const Text('Delete'),
           style: TextButton.styleFrom(
-            foregroundColor: widget.isPlayEnabled ? Colors.red.shade700 : Colors.grey,
+            foregroundColor: widget.isPlayEnabled
+                ? Colors.red.shade700
+                : Colors.grey,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             textStyle: const TextStyle(fontWeight: FontWeight.w600),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ],
@@ -253,7 +277,9 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Text(
-            _recording ? 'Recording — tap stop when done' : 'You can record, play and delete your answer here.',
+            _recording
+                ? 'Recording — tap stop when done'
+                : 'You can record, play and delete your answer here.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
           ),
@@ -262,4 +288,3 @@ class _AudioRecorderState extends State<AudioRecorder> with SingleTickerProvider
     );
   }
 }
-

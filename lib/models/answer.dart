@@ -7,12 +7,14 @@ class Answer {
   final String questionId;
   final String? transcript;
   final String audioPath;
+  String? videoPath;
   final String timestamp;
 
   Answer({
     required this.questionId,
     this.transcript,
     this.audioPath = "",
+    this.videoPath,
     String? timestamp,
   }) : timestamp = timestamp ?? DateTime.now().toIso8601String();
 

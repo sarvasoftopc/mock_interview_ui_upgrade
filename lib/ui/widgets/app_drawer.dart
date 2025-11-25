@@ -6,7 +6,7 @@ import '../../providers/profile_provider.dart';
 
 /// Reusable app drawer. Keep navigation logic here so UIs stay clean.
 class AppDrawer extends StatefulWidget {
-  const AppDrawer({Key? key}) : super(key: key);
+  const AppDrawer({super.key});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -15,8 +15,13 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   bool _loading = false;
 
-  Widget _drawerItem(BuildContext context, IconData icon, String title, String route,
-      {bool replace = false}) {
+  Widget _drawerItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String route, {
+    bool replace = false,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
@@ -47,7 +52,9 @@ class _AppDrawerState extends State<AppDrawer> {
       // If you have prepareSkillDashboard() on provider, use it instead:
       ok = await provider.prepareSkillDashboard(context);
     } catch (e, st) {
-      debugPrint('[AppDrawer] prepareSkillDashboard/fetchLastAnalysis failed: $e\n$st');
+      debugPrint(
+        '[AppDrawer] prepareSkillDashboard/fetchLastAnalysis failed: $e\n$st',
+      );
       ok = false;
     }
 
@@ -90,18 +97,20 @@ class _AppDrawerState extends State<AppDrawer> {
       if (ok) {
         navigator.pushNamed('/profile');
       } else {
-        scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Profile not found or not loaded')));
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Profile not found or not loaded')),
+        );
       }
     } catch (e) {
       // network/server error
       navigator.pop();
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error loading profile: $e')),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +125,10 @@ class _AppDrawerState extends State<AppDrawer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  Text('Menu', style: TextStyle(color: Colors.white, fontSize: 20)),
+                  Text(
+                    'Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
                   SizedBox(height: 8),
                   // TODO: Replace with user avatar, name, email
                   // CircleAvatar(...), Text(userName), etc.
@@ -127,29 +139,58 @@ class _AppDrawerState extends State<AppDrawer> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _drawerItem(context, Icons.dashboard, "Home", '/dashboard', replace: true),
+                  _drawerItem(
+                    context,
+                    Icons.dashboard,
+                    "Home",
+                    '/dashboard',
+                    replace: true,
+                  ),
                   // Custom Skill Dashboard item
                   ListTile(
                     leading: const Icon(Icons.dashboard),
                     title: const Text("Skill Dashboard"),
                     trailing: _loading
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : null,
                     onTap: () => _onSkillDashboardTap(context),
                   ),
-                  _drawerItem(context, Icons.access_time_filled_sharp, "Sessions", '/sessions', replace: true),
+                  _drawerItem(
+                    context,
+                    Icons.access_time_filled_sharp,
+                    "Sessions",
+                    '/sessions',
+                    replace: true,
+                  ),
                   _drawerItem(context, Icons.mic, "Mock Interview", '/mock'),
                   _drawerItem(context, Icons.report, "Reports", '/reports'),
-                  _drawerItem(context, Icons.report, "Your Insights", '/insights'),
-                  _drawerItem(context, Icons.article, "Resume Builder", '/resumeBuilder'),
+                  _drawerItem(
+                    context,
+                    Icons.report,
+                    "Your Insights",
+                    '/insights',
+                  ),
+                  _drawerItem(
+                    context,
+                    Icons.article,
+                    "Resume Builder",
+                    '/resumeBuilder',
+                  ),
                   _drawerItem(context, Icons.settings, "Settings", '/settings'),
-
 
                   ListTile(
                     leading: const Icon(Icons.person),
                     title: const Text("Profile"),
                     trailing: _loading
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : null,
                     onTap: () => _onProfileTap(context),
                   ),
@@ -173,7 +214,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

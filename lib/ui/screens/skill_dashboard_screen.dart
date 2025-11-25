@@ -13,7 +13,7 @@ import 'summary_bottom_sheet.dart';
 
 /// Capabily Skill Dashboard - Modern Data Visualization
 class SkillDashboardScreen extends StatefulWidget {
-  const SkillDashboardScreen({Key? key}) : super(key: key);
+  const SkillDashboardScreen({super.key});
 
   @override
   State<SkillDashboardScreen> createState() => _SkillDashboardScreenState();
@@ -49,8 +49,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
   Future<void> _startMockInterview(BuildContext context) async {
     final provider = context.read<InterviewProvider>();
     final cvJdProvider = context.read<CvJdProvider>();
-    
-    if (cvJdProvider.sessionId.isNotEmpty && cvJdProvider.questions.isNotEmpty) {
+
+    if (cvJdProvider.sessionId.isNotEmpty &&
+        cvJdProvider.questions.isNotEmpty) {
       provider.loadQuestions(cvJdProvider.questions);
       provider.startSession(cvJdProvider.sessionId, SessionType.normal);
     } else {
@@ -69,30 +70,34 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
     final extraSkills = cvJdProvider.additonalSkills;
     final summary = cvJdProvider.summary ?? "No analysis available yet.";
     final matchScore = double.tryParse(cvJdProvider.matchScore ?? "0") ?? 0.0;
-    
+
     final size = MediaQuery.of(context).size;
     final isWide = size.width > 1200;
     final isTablet = size.width > 768 && size.width <= 1200;
 
     // Check if analysis exists
-    final hasAnalysis = overlapSkills.isNotEmpty || missingSkills.isNotEmpty || extraSkills.isNotEmpty;
+    final hasAnalysis =
+        overlapSkills.isNotEmpty ||
+        missingSkills.isNotEmpty ||
+        extraSkills.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      appBar: CustomAppBar(
-        context: context,
-        titleText: 'Skill Dashboard'
-      ),
+      appBar: CustomAppBar(context: context, titleText: 'Skill Dashboard'),
       drawer: const AppDrawer(),
       body: hasAnalysis
           ? SingleChildScrollView(
               padding: EdgeInsets.symmetric(
-                horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
+                horizontal: isWide
+                    ? AppTheme.space12
+                    : (isTablet ? AppTheme.space8 : AppTheme.space4),
                 vertical: AppTheme.space6,
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
+                  constraints: BoxConstraints(
+                    maxWidth: isWide ? 1400 : double.infinity,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -101,7 +106,14 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                       const SizedBox(height: AppTheme.space8),
 
                       // Quick Stats
-                      _buildQuickStats(context, overlapSkills, missingSkills, extraSkills, isWide, isTablet),
+                      _buildQuickStats(
+                        context,
+                        overlapSkills,
+                        missingSkills,
+                        extraSkills,
+                        isWide,
+                        isTablet,
+                      ),
                       const SizedBox(height: AppTheme.space8),
 
                       // Main Content
@@ -113,9 +125,19 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                               flex: 2,
                               child: Column(
                                 children: [
-                                  _buildMatchVisualization(context, matchScore, overlapSkills.length, missingSkills.length),
+                                  _buildMatchVisualization(
+                                    context,
+                                    matchScore,
+                                    overlapSkills.length,
+                                    missingSkills.length,
+                                  ),
                                   const SizedBox(height: AppTheme.space6),
-                                  _buildSkillsBreakdown(context, overlapSkills, missingSkills, extraSkills),
+                                  _buildSkillsBreakdown(
+                                    context,
+                                    overlapSkills,
+                                    missingSkills,
+                                    extraSkills,
+                                  ),
                                 ],
                               ),
                             ),
@@ -134,11 +156,21 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                       else
                         Column(
                           children: [
-                            _buildMatchVisualization(context, matchScore, overlapSkills.length, missingSkills.length),
+                            _buildMatchVisualization(
+                              context,
+                              matchScore,
+                              overlapSkills.length,
+                              missingSkills.length,
+                            ),
                             const SizedBox(height: AppTheme.space6),
                             _buildActionPanel(context, cvJdProvider),
                             const SizedBox(height: AppTheme.space6),
-                            _buildSkillsBreakdown(context, overlapSkills, missingSkills, extraSkills),
+                            _buildSkillsBreakdown(
+                              context,
+                              overlapSkills,
+                              missingSkills,
+                              extraSkills,
+                            ),
                             const SizedBox(height: AppTheme.space6),
                             _buildSummaryCard(context, summary),
                           ],
@@ -153,14 +185,19 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
           : EmptyState(
               icon: Icons.analytics,
               title: 'No Analysis Yet',
-              description: 'Upload your CV and job description to see your skill match analysis',
+              description:
+                  'Upload your CV and job description to see your skill match analysis',
               actionText: 'Go to Home',
               onAction: () => Navigator.pop(context),
             ),
     );
   }
 
-  Widget _buildHeaderSection(BuildContext context, double matchScore, bool isWide) {
+  Widget _buildHeaderSection(
+    BuildContext context,
+    double matchScore,
+    bool isWide,
+  ) {
     return Container(
       padding: EdgeInsets.all(isWide ? AppTheme.space8 : AppTheme.space6),
       decoration: BoxDecoration(
@@ -179,7 +216,11 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
-                child: const Icon(Icons.analytics, color: Colors.white, size: 32),
+                child: const Icon(
+                  Icons.analytics,
+                  color: Colors.white,
+                  size: 32,
+                ),
               ),
               const SizedBox(width: AppTheme.space4),
               Expanded(
@@ -188,14 +229,18 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                   children: [
                     Text(
                       'Skill Match Analysis',
-                      style: isWide 
+                      style: isWide
                           ? AppTheme.headlineLarge.copyWith(color: Colors.white)
-                          : AppTheme.headlineSmall.copyWith(color: Colors.white),
+                          : AppTheme.headlineSmall.copyWith(
+                              color: Colors.white,
+                            ),
                     ),
                     const SizedBox(height: AppTheme.space1),
                     Text(
                       'CV vs Job Description Comparison',
-                      style: AppTheme.bodyMedium.copyWith(color: Colors.white.withOpacity(0.9)),
+                      style: AppTheme.bodyMedium.copyWith(
+                        color: Colors.white.withOpacity(0.9),
+                      ),
                     ),
                   ],
                 ),
@@ -207,8 +252,14 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, List overlapSkills, List missingSkills, 
-      List extraSkills, bool isWide, bool isTablet) {
+  Widget _buildQuickStats(
+    BuildContext context,
+    List overlapSkills,
+    List missingSkills,
+    List extraSkills,
+    bool isWide,
+    bool isTablet,
+  ) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -237,7 +288,8 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
         ),
         StatsCard(
           label: 'Total Skills',
-          value: '${overlapSkills.length + missingSkills.length + extraSkills.length}',
+          value:
+              '${overlapSkills.length + missingSkills.length + extraSkills.length}',
           icon: Icons.inventory,
           color: AppTheme.primaryPurple,
         ),
@@ -245,7 +297,12 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
     );
   }
 
-  Widget _buildMatchVisualization(BuildContext context, double matchScore, int matched, int missing) {
+  Widget _buildMatchVisualization(
+    BuildContext context,
+    double matchScore,
+    int matched,
+    int missing,
+  ) {
     return ModernCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +312,7 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
             subtitle: 'Your skill alignment with the job',
           ),
           const SizedBox(height: AppTheme.space6),
-          
+
           // Circular Progress
           Center(
             child: SizedBox(
@@ -296,9 +353,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
               ),
             ),
           ),
-          
+
           const SizedBox(height: AppTheme.space6),
-          
+
           // Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -325,7 +382,12 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
     );
   }
 
-  Widget _buildSkillsBreakdown(BuildContext context, List overlapSkills, List missingSkills, List extraSkills) {
+  Widget _buildSkillsBreakdown(
+    BuildContext context,
+    List overlapSkills,
+    List missingSkills,
+    List extraSkills,
+  ) {
     return ModernCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +397,7 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
             subtitle: 'Detailed skill comparison',
           ),
           const SizedBox(height: AppTheme.space4),
-          
+
           TabBar(
             controller: _tabController,
             labelColor: AppTheme.primaryPurple,
@@ -347,15 +409,19 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
               Tab(text: 'Extra (${extraSkills.length})'),
             ],
           ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           SizedBox(
             height: 400,
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildSkillList(overlapSkills, AppTheme.success, Icons.check_circle),
+                _buildSkillList(
+                  overlapSkills,
+                  AppTheme.success,
+                  Icons.check_circle,
+                ),
                 _buildSkillList(missingSkills, AppTheme.warning, Icons.school),
                 _buildSkillList(extraSkills, AppTheme.info, Icons.star),
               ],
@@ -404,12 +470,7 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                 child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: AppTheme.space3),
-              Expanded(
-                child: Text(
-                  skill,
-                  style: AppTheme.titleSmall,
-                ),
-              ),
+              Expanded(child: Text(skill, style: AppTheme.titleSmall)),
             ],
           ),
         );
@@ -424,16 +485,16 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
         children: [
           const SectionHeader(title: 'Quick Actions'),
           const SizedBox(height: AppTheme.space4),
-          
+
           ModernButton(
             text: 'Start Practice Interview',
             icon: Icons.play_arrow,
             isFullWidth: true,
             onPressed: () => _startMockInterview(context),
           ),
-          
+
           const SizedBox(height: AppTheme.space3),
-          
+
           ModernButton(
             text: 'View Detailed Summary',
             icon: Icons.description,
@@ -444,13 +505,14 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (_) => SummaryBottomSheet(summary: provider.summary ?? ''),
+                builder: (_) =>
+                    SummaryBottomSheet(summary: provider.summary ?? ''),
               );
             },
           ),
-          
+
           const SizedBox(height: AppTheme.space3),
-          
+
           ModernButton(
             text: 'New Analysis',
             icon: Icons.refresh,
@@ -458,11 +520,11 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
             isFullWidth: true,
             onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
           ),
-          
+
           const SizedBox(height: AppTheme.space6),
           const Divider(),
           const SizedBox(height: AppTheme.space4),
-          
+
           _ActionTile(
             icon: Icons.trending_up,
             title: 'Improve Skills',
@@ -494,7 +556,11 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
                   color: AppTheme.info.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
-                child: const Icon(Icons.lightbulb, color: AppTheme.info, size: 24),
+                child: const Icon(
+                  Icons.lightbulb,
+                  color: AppTheme.info,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: AppTheme.space3),
               const Expanded(
@@ -510,7 +576,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen>
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
             child: Text(
-              summary.length > 300 ? '${summary.substring(0, 300)}...' : summary,
+              summary.length > 300
+                  ? '${summary.substring(0, 300)}...'
+                  : summary,
               style: AppTheme.bodyMedium.copyWith(height: 1.6),
             ),
           ),
@@ -569,10 +637,7 @@ class _LegendItem extends StatelessWidget {
             Container(
               width: 12,
               height: 12,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             const SizedBox(width: 6),
             Text(label, style: AppTheme.bodySmall),
@@ -622,7 +687,11 @@ class _ActionTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppTheme.textLight),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: AppTheme.textLight,
+            ),
           ],
         ),
       ),

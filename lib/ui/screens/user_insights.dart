@@ -8,13 +8,14 @@ import '../widgets/custom_app_bar.dart';
 
 /// Capabily User Insights - Performance Analytics Dashboard
 class UserInsights extends StatefulWidget {
-  const UserInsights({Key? key}) : super(key: key);
+  const UserInsights({super.key});
 
   @override
   State<UserInsights> createState() => _UserInsightsState();
 }
 
-class _UserInsightsState extends State<UserInsights> with SingleTickerProviderStateMixin {
+class _UserInsightsState extends State<UserInsights>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   String _selectedPeriod = '7d';
   bool _initialized = false;
@@ -56,99 +57,117 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
     final completedSessions = sessions.where((s) => s.completed).toList();
     final avgScore = completedSessions.isEmpty
         ? 0.0
-        : completedSessions.map((s) => s.score ?? 0).reduce((a, b) => a + b) / completedSessions.length;
+        : completedSessions.map((s) => s.score ?? 0).reduce((a, b) => a + b) /
+              completedSessions.length;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      appBar: CustomAppBar(
-        context: context,
-        titleText: 'Performance Insights'
-      ),
+      appBar: CustomAppBar(context: context, titleText: 'Performance Insights'),
       drawer: const AppDrawer(),
       body: sessionProvider.loading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryPurple))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryPurple),
+            )
           : sessions.isEmpty
-              ? EmptyState(
-                  icon: Icons.insights,
-                  title: 'No Data Yet',
-                  description: 'Complete some interviews to see your performance insights',
-                  actionText: 'Start Practice',
-                  onAction: () => Navigator.pushNamed(context, '/practice'),
-                )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
-                    vertical: AppTheme.space6,
+          ? EmptyState(
+              icon: Icons.insights,
+              title: 'No Data Yet',
+              description:
+                  'Complete some interviews to see your performance insights',
+              actionText: 'Start Practice',
+              onAction: () => Navigator.pushNamed(context, '/practice'),
+            )
+          : SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide
+                    ? AppTheme.space12
+                    : (isTablet ? AppTheme.space8 : AppTheme.space4),
+                vertical: AppTheme.space6,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isWide ? 1400 : double.infinity,
                   ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header
-                          _buildHeader(context, isWide),
-                          const SizedBox(height: AppTheme.space6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      _buildHeader(context, isWide),
+                      const SizedBox(height: AppTheme.space6),
 
-                          // Period Selector
-                          _buildPeriodSelector(),
-                          const SizedBox(height: AppTheme.space8),
+                      // Period Selector
+                      _buildPeriodSelector(),
+                      const SizedBox(height: AppTheme.space8),
 
-                          // Key Metrics
-                          _buildKeyMetrics(context, sessions, completedSessions, avgScore, isWide, isTablet),
-                          const SizedBox(height: AppTheme.space8),
-
-                          // Main Content
-                          if (isWide)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    children: [
-                                      _buildPerformanceTrend(context, completedSessions),
-                                      const SizedBox(height: AppTheme.space6),
-                                      _buildSkillsBreakdown(context, completedSessions),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: AppTheme.space6),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      _buildActivityCalendar(context, sessions),
-                                      const SizedBox(height: AppTheme.space6),
-                                      _buildRecommendations(context),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            )
-                          else
-                            Column(
-                              children: [
-                                _buildPerformanceTrend(context, completedSessions),
-                                const SizedBox(height: AppTheme.space6),
-                                _buildActivityCalendar(context, sessions),
-                                const SizedBox(height: AppTheme.space6),
-                                _buildSkillsBreakdown(context, completedSessions),
-                                const SizedBox(height: AppTheme.space6),
-                                _buildRecommendations(context),
-                              ],
-                            ),
-
-                          const SizedBox(height: AppTheme.space8),
-
-                          // Recent Sessions
-                          _buildRecentSessions(context, sessions),
-
-                          const SizedBox(height: AppTheme.space10),
-                        ],
+                      // Key Metrics
+                      _buildKeyMetrics(
+                        context,
+                        sessions,
+                        completedSessions,
+                        avgScore,
+                        isWide,
+                        isTablet,
                       ),
-                    ),
+                      const SizedBox(height: AppTheme.space8),
+
+                      // Main Content
+                      if (isWide)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  _buildPerformanceTrend(
+                                    context,
+                                    completedSessions,
+                                  ),
+                                  const SizedBox(height: AppTheme.space6),
+                                  _buildSkillsBreakdown(
+                                    context,
+                                    completedSessions,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: AppTheme.space6),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _buildActivityCalendar(context, sessions),
+                                  const SizedBox(height: AppTheme.space6),
+                                  _buildRecommendations(context),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            _buildPerformanceTrend(context, completedSessions),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildActivityCalendar(context, sessions),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildSkillsBreakdown(context, completedSessions),
+                            const SizedBox(height: AppTheme.space6),
+                            _buildRecommendations(context),
+                          ],
+                        ),
+
+                      const SizedBox(height: AppTheme.space8),
+
+                      // Recent Sessions
+                      _buildRecentSessions(context, sessions),
+
+                      const SizedBox(height: AppTheme.space10),
+                    ],
                   ),
                 ),
+              ),
+            ),
     );
   }
 
@@ -179,13 +198,18 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
                 children: [
                   Text(
                     'Your Progress Dashboard',
-                    style: (isWide ? AppTheme.headlineLarge : AppTheme.headlineSmall)
-                        .copyWith(color: Colors.white),
+                    style:
+                        (isWide
+                                ? AppTheme.headlineLarge
+                                : AppTheme.headlineSmall)
+                            .copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: AppTheme.space1),
                   Text(
                     'Track your interview performance and growth',
-                    style: AppTheme.bodyMedium.copyWith(color: Colors.white.withOpacity(0.9)),
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
                   ),
                 ],
               ),
@@ -229,19 +253,25 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildKeyMetrics(BuildContext context, List sessions, List completedSessions,
-      double avgScore, bool isWide, bool isTablet) {
+  Widget _buildKeyMetrics(
+    BuildContext context,
+    List sessions,
+    List completedSessions,
+    double avgScore,
+    bool isWide,
+    bool isTablet,
+  ) {
     final totalHours = (sessions.length * 0.5).toStringAsFixed(1);
     final improvementRate = completedSessions.length > 1 ? '+12%' : 'N/A';
 
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+            ),
+          ),
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -268,7 +298,9 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
           ),
           StatsCard(
             label: 'Completion Rate',
-            value: sessions.isEmpty ? '0%' : '${((completedSessions.length / sessions.length) * 100).toInt()}%',
+            value: sessions.isEmpty
+                ? '0%'
+                : '${((completedSessions.length / sessions.length) * 100).toInt()}%',
             icon: Icons.check_circle,
             color: AppTheme.info,
             trend: improvementRate,
@@ -297,13 +329,16 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
             subtitle: 'Your score progress over time',
           ),
           const SizedBox(height: AppTheme.space6),
-          
+
           // Simple Bar Chart Visualization
           if (completedSessions.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(AppTheme.space8),
-                child: Text('No completed sessions yet', style: AppTheme.bodyMedium),
+                child: Text(
+                  'No completed sessions yet',
+                  style: AppTheme.bodyMedium,
+                ),
               ),
             )
           else
@@ -315,9 +350,10 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
                 children: List.generate(
                   completedSessions.length > 10 ? 10 : completedSessions.length,
                   (index) {
-                    final session = completedSessions[
-                        completedSessions.length > 10 ? completedSessions.length - 10 + index : index
-                    ];
+                    final session =
+                        completedSessions[completedSessions.length > 10
+                            ? completedSessions.length - 10 + index
+                            : index];
                     final score = session.score ?? 0;
                     return _BarChartItem(
                       height: (score / 10) * 200,
@@ -328,9 +364,9 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
                 ),
               ),
             ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           // Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -357,7 +393,7 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
             subtitle: 'Your practice consistency',
           ),
           const SizedBox(height: AppTheme.space6),
-          
+
           // Simple activity grid (7x4 = 28 days)
           GridView.builder(
             shrinkWrap: true,
@@ -380,9 +416,9 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
               );
             },
           ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -408,7 +444,11 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
     final skills = [
       {'name': 'Technical', 'progress': 0.85, 'color': AppTheme.info},
       {'name': 'Communication', 'progress': 0.72, 'color': AppTheme.success},
-      {'name': 'Problem Solving', 'progress': 0.90, 'color': AppTheme.primaryPurple},
+      {
+        'name': 'Problem Solving',
+        'progress': 0.90,
+        'color': AppTheme.primaryPurple,
+      },
       {'name': 'Leadership', 'progress': 0.65, 'color': AppTheme.warning},
     ];
 
@@ -421,31 +461,35 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
             subtitle: 'Your strength areas',
           ),
           const SizedBox(height: AppTheme.space6),
-          
-          ...skills.map((skill) => Padding(
-            padding: const EdgeInsets.only(bottom: AppTheme.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(skill['name'] as String, style: AppTheme.titleSmall),
-                    Text(
-                      '${((skill['progress'] as double) * 100).toInt()}%',
-                      style: AppTheme.titleSmall.copyWith(color: skill['color'] as Color),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppTheme.space2),
-                ModernProgressBar(
-                  progress: skill['progress'] as double,
-                  color: skill['color'] as Color,
-                  height: 8,
-                ),
-              ],
+
+          ...skills.map(
+            (skill) => Padding(
+              padding: const EdgeInsets.only(bottom: AppTheme.space4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(skill['name'] as String, style: AppTheme.titleSmall),
+                      Text(
+                        '${((skill['progress'] as double) * 100).toInt()}%',
+                        style: AppTheme.titleSmall.copyWith(
+                          color: skill['color'] as Color,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppTheme.space2),
+                  ModernProgressBar(
+                    progress: skill['progress'] as double,
+                    color: skill['color'] as Color,
+                    height: 8,
+                  ),
+                ],
+              ),
             ),
-          )).toList(),
+          ),
         ],
       ),
     );
@@ -464,7 +508,11 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
                   color: AppTheme.warning.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
-                child: const Icon(Icons.tips_and_updates, color: AppTheme.warning, size: 24),
+                child: const Icon(
+                  Icons.tips_and_updates,
+                  color: AppTheme.warning,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: AppTheme.space3),
               const Expanded(
@@ -473,7 +521,7 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
             ],
           ),
           const SizedBox(height: AppTheme.space4),
-          
+
           _RecommendationItem(
             icon: Icons.schedule,
             title: 'Practice Consistency',
@@ -515,70 +563,86 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
             ),
           ),
           const SizedBox(height: AppTheme.space4),
-          
-          ...recentSessions.map((session) => Padding(
-            padding: const EdgeInsets.only(bottom: AppTheme.space3),
-            child: InkWell(
-              onTap: () {
-                final provider = context.read<SessionProvider>();
-                provider.openSession(context, session.id, session.sessionType);
-              },
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              child: Container(
-                padding: const EdgeInsets.all(AppTheme.space4),
-                decoration: BoxDecoration(
-                  color: AppTheme.backgroundGray,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        gradient: session.completed
-                            ? AppTheme.successGradient
-                            : AppTheme.warningGradient,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        session.completed ? Icons.check : Icons.pending,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.space3),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(session.sessionType, style: AppTheme.titleSmall),
-                          Text(
-                            _formatDate(session.createdAt),
-                            style: AppTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (session.completed && session.score != null)
+
+          ...recentSessions.map(
+            (session) => Padding(
+              padding: const EdgeInsets.only(bottom: AppTheme.space3),
+              child: InkWell(
+                onTap: () {
+                  final provider = context.read<SessionProvider>();
+                  provider.openSession(
+                    context,
+                    session.id,
+                    session.sessionType,
+                  );
+                },
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                child: Container(
+                  padding: const EdgeInsets.all(AppTheme.space4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.backgroundGray,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  child: Row(
+                    children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
-                          color: _getScoreColor(session.score!).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                          gradient: session.completed
+                              ? AppTheme.successGradient
+                              : AppTheme.warningGradient,
+                          shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          session.score!.toStringAsFixed(1),
-                          style: AppTheme.titleSmall.copyWith(
-                            color: _getScoreColor(session.score!),
-                          ),
+                        child: Icon(
+                          session.completed ? Icons.check : Icons.pending,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
-                  ],
+                      const SizedBox(width: AppTheme.space3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              session.sessionType,
+                              style: AppTheme.titleSmall,
+                            ),
+                            Text(
+                              _formatDate(session.createdAt),
+                              style: AppTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (session.completed && session.score != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getScoreColor(
+                              session.score!,
+                            ).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
+                          ),
+                          child: Text(
+                            session.score!.toStringAsFixed(1),
+                            style: AppTheme.titleSmall.copyWith(
+                              color: _getScoreColor(session.score!),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          )).toList(),
+          ),
         ],
       ),
     );
@@ -593,7 +657,7 @@ class _UserInsightsState extends State<UserInsights> with SingleTickerProviderSt
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
-    
+
     if (diff.inDays == 0) return 'Today';
     if (diff.inDays == 1) return 'Yesterday';
     if (diff.inDays < 7) return '${diff.inDays} days ago';
@@ -650,8 +714,10 @@ class _BarChartItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = score >= 8 ? AppTheme.success : (score >= 5 ? AppTheme.warning : AppTheme.error);
-    
+    final color = score >= 8
+        ? AppTheme.success
+        : (score >= 5 ? AppTheme.warning : AppTheme.error);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [

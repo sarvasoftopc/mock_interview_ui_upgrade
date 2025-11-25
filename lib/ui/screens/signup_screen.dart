@@ -9,7 +9,7 @@ import 'email_confirmation_pending.dart';
 /// Modern Sign Up Screen with upgraded UI
 /// Preserves all existing functionality
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -29,12 +29,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => _loading = false);
 
     if (auth.userId != null) {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => EmailConfirmationPendingScreen(
-          email: _emailCtrl.text.trim(),
-          password: _passCtrl.text,
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => EmailConfirmationPendingScreen(
+            email: _emailCtrl.text.trim(),
+            password: _passCtrl.text,
+          ),
         ),
-      ));
+      );
     }
   }
 
@@ -56,7 +58,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(40),
-                    decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,23 +79,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(color: Colors.white70, fontSize: 16),
                         ),
                         const SizedBox(height: 20),
-                        Wrap(spacing: 12, runSpacing: 12, children: const [
-                          _BrandFeature(icon: Icons.mic, label: 'Voice Interviews'),
-                          _BrandFeature(icon: Icons.psychology_alt, label: 'AI Adaptive'),
-                          _BrandFeature(icon: Icons.school, label: 'Skill Practice'),
-                          _BrandFeature(icon: Icons.analytics, label: 'Insights'),
-                        ]),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: const [
+                            _BrandFeature(
+                              icon: Icons.mic,
+                              label: 'Voice Interviews',
+                            ),
+                            _BrandFeature(
+                              icon: Icons.psychology_alt,
+                              label: 'AI Adaptive',
+                            ),
+                            _BrandFeature(
+                              icon: Icons.school,
+                              label: 'Skill Practice',
+                            ),
+                            _BrandFeature(
+                              icon: Icons.analytics,
+                              label: 'Insights',
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 30),
-                        const Text('SarvaSoft (OPC) Private Limited',
-                            style: TextStyle(color: Colors.white54)),
+                        const Text(
+                          'SarvaSoft (OPC) Private Limited',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       ],
                     ),
                   ),
                 ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isWide ? 40 : 20, vertical: 28),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWide ? 40 : 20,
+                    vertical: 28,
+                  ),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 520),
@@ -120,45 +144,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Card(
                             elevation: 4,
                             shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(AppTheme.radiusLg)),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusLg,
+                              ),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(24),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const Text('Create your account',
-                                      style: TextStyle(
-                                          fontSize: 20, fontWeight: FontWeight.w700)),
+                                  const Text(
+                                    'Create your account',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                   const SizedBox(height: 16),
                                   TextFormField(
                                     controller: _emailCtrl,
                                     keyboardType: TextInputType.emailAddress,
-                                    decoration: AppTheme.inputDecoration('Email')
-                                        .copyWith(
-                                            prefixIcon:
-                                                const Icon(Icons.email_outlined)),
+                                    decoration:
+                                        AppTheme.inputDecoration(
+                                          'Email',
+                                        ).copyWith(
+                                          prefixIcon: const Icon(
+                                            Icons.email_outlined,
+                                          ),
+                                        ),
                                   ),
                                   const SizedBox(height: 16),
                                   TextFormField(
                                     controller: _passCtrl,
                                     obscureText: _obscure,
-                                    decoration: AppTheme.inputDecoration('Password')
-                                        .copyWith(
-                                      prefixIcon: const Icon(Icons.lock_outline),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(_obscure
-                                            ? Icons.visibility_off
-                                            : Icons.visibility),
-                                        onPressed: () =>
-                                            setState(() => _obscure = !_obscure),
-                                      ),
-                                    ),
+                                    decoration:
+                                        AppTheme.inputDecoration(
+                                          'Password',
+                                        ).copyWith(
+                                          prefixIcon: const Icon(
+                                            Icons.lock_outline,
+                                          ),
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              _obscure
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                            ),
+                                            onPressed: () => setState(
+                                              () => _obscure = !_obscure,
+                                            ),
+                                          ),
+                                        ),
                                   ),
                                   const SizedBox(height: 12),
                                   if (auth.errorMessage != null)
-                                    Text(auth.errorMessage!,
-                                        style: const TextStyle(color: Colors.red)),
+                                    Text(
+                                      auth.errorMessage!,
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
                                   const SizedBox(height: 16),
                                   SizedBox(
                                     height: 50,
@@ -173,8 +216,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),
                                     child: const Text(
-                                        'Already have an account? Log in',
-                                        style: TextStyle(color: AppTheme.primaryPurple)),
+                                      'Already have an account? Log in',
+                                      style: TextStyle(
+                                        color: AppTheme.primaryPurple,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -186,7 +232,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'By creating an account you agree to our Terms & Privacy.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 12),
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],

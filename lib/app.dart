@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +15,7 @@ import 'package:sarvasoft_moc_interview/ui/screens/placeholder_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/practice_hub_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/preparation_hub_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/profile_page.dart';
+import 'package:sarvasoft_moc_interview/ui/screens/question_screen_with_video.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/session_detail_screen.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/sessions_list.dart';
 import 'package:sarvasoft_moc_interview/ui/screens/signup_screen.dart';
@@ -33,9 +33,8 @@ import 'ui/screens/question_screen.dart';
 import 'ui/screens/settings_screen.dart';
 import 'utils/constants.dart';
 
-
 class InterviewPrepApp extends StatefulWidget {
-  const InterviewPrepApp({Key? key}) : super(key: key);
+  const InterviewPrepApp({super.key});
 
   // helper for accessing from children
   static _InterviewPrepAppState? of(BuildContext context) =>
@@ -77,7 +76,7 @@ class _InterviewPrepAppState extends State<InterviewPrepApp> {
             supportedLocales: AppLocalizations.delegate.supportedLocales,
             initialRoute: '/',
             routes: {
-//              '/': (ctx) => const HomeScreen(),
+              //              '/': (ctx) => const HomeScreen(),
               //splash screen: this works
               '/': (ctx) => const SplashScreen(), // <-- use AuthWrapper here
               //this also works
@@ -87,17 +86,17 @@ class _InterviewPrepAppState extends State<InterviewPrepApp> {
               //login works
               "/login": (ctx) => const LoginScreen(),
               //home screen works - UPGRADED TO MODERN UI
-              "/home": (ctx) => const HomeScreenModern(),
+              "/home": (ctx) => const HomeScreen(),
               '/settings': (ctx) => const SettingsScreen(),
               //this works
               '/signup': (ctx) => const SignUpScreen(),
               //this works - UPGRADED TO MODERN UI
-              '/dashboard': (ctx) => const HomeScreenModern(),
+              '/dashboard': (ctx) => const HomeScreen(),
               //this is present and works
               '/settings': (ctx) => const SettingsScreen(),
 
               //this is present
-              '/question': (ctx) => const QuestionScreen(),
+              '/question': (ctx) => const QuestionScreenV2(),
               //this is present
               '/sessions': (ctx) => const SessionsScreen(),
               //this is not rpesent
@@ -106,35 +105,42 @@ class _InterviewPrepAppState extends State<InterviewPrepApp> {
               //new mock interview pages
               '/mockInterviewSkill': (ctx) => const MockInterviewSkillPage(),
               '/mockInterviewRole': (ctx) => const MockInterviewRolePage(),
-              '/mockInterviewAdaptive': (ctx) => const MockInterviewAdaptivePage(),
+              '/mockInterviewAdaptive': (ctx) =>
+                  const MockInterviewAdaptivePage(),
               //this also works
               '/sessionDetail': (ctx) {
-                final args = ModalRoute.of(ctx)!.settings.arguments as Map<String, String>;
-                return SessionDetailScreen(sessionId: args['sessionId']!, sessionType: args['sessionType']!);
+                final args =
+                    ModalRoute.of(ctx)!.settings.arguments
+                        as Map<String, String>;
+                return SessionDetailScreen(
+                  sessionId: args['sessionId']!,
+                  sessionType: args['sessionType']!,
+                );
               },
               '/createProfile': (ctx) => const ProfilePage(),
               '/profile': (ctx) => const CandidateProfileScreen(),
               '/insights': (ctx) => const InsightsDashboardScreen(),
               '/preparationHub': (ctx) => const PreparationHubScreen(),
               "/practice": (ctx) => const PracticeHubScreen(),
-              "/mockInterviewAdaptiveSession" :(ctx) => const AdaptiveInterviewPage(),
+              "/mockInterviewAdaptiveSession": (ctx) =>
+                  const AdaptiveInterviewPage(),
 
               //TODO: this might not be needed anymore
-              "/mockInterview" :(ctx) => const MockInterviewScreen(),
+              "/mockInterview": (ctx) => const MockInterviewScreen(),
 
-
-              '/resumeBuilder': (ctx) => const PlaceholderScreen(title: "Resume Builder"),
+              '/resumeBuilder': (ctx) =>
+                  const PlaceholderScreen(title: "Resume Builder"),
               "/panelInterview": (ctx) => const PanelInterviewScreen(),
               '/careerCoach': (ctx) => const CareerCoachScreen(),
-              '/skillTutorials': (ctx) => const PlaceholderScreen(title: "Skill Tutorials"),
-              '/questionBank': (ctx) => const PlaceholderScreen(title: "Question Bank"),
+              '/skillTutorials': (ctx) =>
+                  const PlaceholderScreen(title: "Skill Tutorials"),
+              '/questionBank': (ctx) =>
+                  const PlaceholderScreen(title: "Question Bank"),
 
-
-              '/mock': (ctx) => const PlaceholderScreen(title: "Mock Interviews"),
+              '/mock': (ctx) =>
+                  const PlaceholderScreen(title: "Mock Interviews"),
               '/reports': (ctx) => const PlaceholderScreen(title: "Reports"),
               '/history': (ctx) => const PlaceholderScreen(title: "History"),
-
-
             },
           );
         },

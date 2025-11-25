@@ -11,14 +11,14 @@ class GradientButton extends StatelessWidget {
   final IconData? icon;
 
   const GradientButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
     this.width,
     this.padding,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,9 @@ class GradientButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          padding: padding ?? const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
@@ -84,12 +86,12 @@ class StatCard extends StatelessWidget {
   final Color? color;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.value,
     required this.label,
     this.icon,
     this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -111,11 +113,7 @@ class StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            label,
-            style: AppTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
+          Text(label, style: AppTheme.bodySmall, textAlign: TextAlign.center),
         ],
       ),
     );
@@ -131,13 +129,13 @@ class FeatureCard extends StatelessWidget {
   final bool disabled;
 
   const FeatureCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
     this.onTap,
     this.disabled = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -155,15 +153,9 @@ class FeatureCard extends StatelessWidget {
           children: [
             Text(icon, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 12),
-            Text(
-              title,
-              style: AppTheme.titleMedium,
-            ),
+            Text(title, style: AppTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(
-              description,
-              style: AppTheme.bodySmall.copyWith(height: 1.6),
-            ),
+            Text(description, style: AppTheme.bodySmall.copyWith(height: 1.6)),
           ],
         ),
       ),
@@ -180,13 +172,13 @@ class InterviewTypeCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const InterviewTypeCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +190,9 @@ class InterviewTypeCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryLight : Colors.white,
           border: Border.all(
-            color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE2E8F0),
+            color: isSelected
+                ? AppTheme.primaryPurple
+                : const Color(0xFFE2E8F0),
             width: isSelected ? 3 : 2,
           ),
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -209,10 +203,7 @@ class InterviewTypeCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
@@ -236,11 +227,7 @@ class CustomProgressBar extends StatelessWidget {
   final double progress; // 0.0 to 1.0
   final double height;
 
-  const CustomProgressBar({
-    Key? key,
-    required this.progress,
-    this.height = 8,
-  }) : super(key: key);
+  const CustomProgressBar({super.key, required this.progress, this.height = 8});
 
   @override
   Widget build(BuildContext context) {

@@ -18,16 +18,16 @@ import '../services/audio_service.dart';
 import '../services/auth_service.dart';
 import '../services/file_service.dart';
 import '../services/storage_service.dart';
-import 'file_ops_stub.dart'
-if (dart.library.io) 'file_ops_io.dart';
+import 'file_ops_stub.dart' if (dart.library.io) 'file_ops_io.dart';
 import 'web_audio_helper_stub.dart'
-if (dart.library.html) 'web_audio_helper.dart';
+    if (dart.library.html) 'web_audio_helper.dart';
 
 /// ----------------------
 /// Background helpers
 /// ----------------------
 /// Must be top-level for `compute` and `Isolate.run`.
-Map<String, dynamic> _parseWs(String raw) => json.decode(raw) as Map<String, dynamic>;
+Map<String, dynamic> _parseWs(String raw) =>
+    json.decode(raw) as Map<String, dynamic>;
 
 Map<String, dynamic> _normalizeMap(Map<String, dynamic> m) {
   // Place any heavy/iterative pure transformations here if needed.
@@ -51,8 +51,7 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   bool connected = false;
 
   bool _navigatedToSessions = false;
-  Map<int,LocalTurn> turns= Map<int,LocalTurn>();
-
+  Map<int, LocalTurn> turns = <int, LocalTurn>{};
 
   LocalTurn? _currentTurn;
   LocalTurn? _lastTurn;
@@ -68,7 +67,6 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   bool get navigateToSessions => _navigatedToSessions;
   Uint8List? get lastRecording => _lastRecording;
 
-
   double? finalScore;
 
   // config
@@ -79,7 +77,6 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   // history of answers + feedback
   List<LocalTurn> historicalTurnFeedbacks = [];
 
-
   AdaptiveSessionProvider({
     required this.backendBase,
     required this.wsBase,
@@ -87,20 +84,24 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     required this.audio,
     required this.api,
     FileService? fileService,
-  }): _fileService = fileService ?? FileService();
+  }) : _fileService = fileService ?? FileService();
 
   set navigatedToSessions(bool navigatedToSessions) {
     _navigatedToSessions = navigatedToSessions;
   }
 
-
-  Future<void> startSession(Map startPayload ,InterviewProvider interviewProvider, SessionProvider sessionProvider) async {
-    this.interview_provider = interviewProvider;
+  Future<void> startSession(
+    Map startPayload,
+    InterviewProvider interviewProvider,
+    SessionProvider sessionProvider,
+  ) async {
+    interview_provider = interviewProvider;
     this.sessionProvider = sessionProvider;
     historicalTurnFeedbacks.clear();
     final token = await authService.getAccessToken();
     final uri = Uri.parse('$backendBase/sessions/start_adaptive');
-    final resp = await http.post(uri,
+    final resp = await http.post(
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
@@ -112,8 +113,9 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     }
     final body = jsonDecode(resp.body);
     sessionId = body['session_id'] ?? body['sessionId'] ?? body['id'];
-    if (sessionId == null) throw Exception('session id missing');
-    else if(sessionId!=null){
+    if (sessionId == null) {
+      throw Exception('session id missing');
+    } else if (sessionId != null) {
       //Using interview provider to keep track of current mock session
       interviewProvider.startSession(sessionId!, SessionType.adaptive);
     }
@@ -122,12 +124,17 @@ class AdaptiveSessionProvider extends ChangeNotifier {
 
   Future<void> _connectWs() async {
     if (sessionId == null) throw Exception('sessionId null');
-    final candidate_id = await authService.getUserId();
-    final wsUrl = '$wsBase/ws/sessions/$sessionId?token=${candidate_id!}';
+    final candidateId = await authService.getUserId();
+    final wsUrl = '$wsBase/ws/sessions/$sessionId?token=${candidateId!}';
     _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
     connected = true;
     notifyListeners();
-    _sub = _channel!.stream.listen(_onMessage, onDone: _onDone, onError: _onError, cancelOnError: false);
+    _sub = _channel!.stream.listen(
+      _onMessage,
+      onDone: _onDone,
+      onError: _onError,
+      cancelOnError: false,
+    );
   }
 
   /// UPDATED: offload WS parsing/normalization off UI isolate.
@@ -136,12 +143,15 @@ class AdaptiveSessionProvider extends ChangeNotifier {
       // Parse on a background isolate
       final Map<String, dynamic> parsed = await Isolate.run(() {
         if (raw is String) return _parseWs(raw);
-        if (raw is Map) return Map<String, dynamic>.from(raw as Map);
+        if (raw is Map) return Map<String, dynamic>.from(raw);
         throw ArgumentError('Unsupported WS payload ${raw.runtimeType}');
       });
 
       // If you add any heavy pure transforms, keep them off the UI too
-      final Map<String, dynamic> normalized = await compute(_normalizeMap, parsed);
+      final Map<String, dynamic> normalized = await compute(
+        _normalizeMap,
+        parsed,
+      );
 
       // Apply to state quickly on UI
       _handleMap(normalized);
@@ -154,15 +164,17 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     final t = msg['type']?.toString();
     if (t == 'ai_question') {
       LocalTurn turn = LocalTurn(
-        currentTurn:  msg['turn_index'] ,
+        currentTurn: msg['turn_index'],
         interviewQuestion: InterviewQuestion(
-            question: msg['question'],
-            tags: (msg['tags'] is List) ? List<String>.from(msg['tags']) : [],
-            difficulty: msg['difficulty'].toString() ,
-            ttsFile:  msg['tts_file'].toString(),
-            id: msg['question_id'].toString(),
-            hints: (msg['hints'] is List) ? List<String>.from(msg['hints']) : [],
-            topics: (msg['topics'] is List) ? List<String>.from(msg['topics']) : []
+          question: msg['question'],
+          tags: (msg['tags'] is List) ? List<String>.from(msg['tags']) : [],
+          difficulty: msg['difficulty'].toString(),
+          ttsFile: msg['tts_file'].toString(),
+          id: msg['question_id'].toString(),
+          hints: (msg['hints'] is List) ? List<String>.from(msg['hints']) : [],
+          topics: (msg['topics'] is List)
+              ? List<String>.from(msg['topics'])
+              : [],
         ),
         // currentDifficulty: msg['difficulty'] is num ? (msg['difficulty'] as num).toInt() :0,
         // currentQuestionId : msg['question_id'].toString(),
@@ -173,16 +185,15 @@ class AdaptiveSessionProvider extends ChangeNotifier {
         // currentTopics: (msg['topics'] is List) ? List<String>.from(msg['topics']) : []
       );
 
-
-// simplest
-      if(_currentTurn != null) {
+      // simplest
+      if (_currentTurn != null) {
         if (msg.containsKey('score')) {
           final analysis = msg['score'] as Map;
           var candidateAnswer = '';
-          if(msg.containsKey("candidate_answer")) {
+          if (msg.containsKey("candidate_answer")) {
             candidateAnswer = msg['candidate_answer'];
           }
-          var answerfeedback = _storeAnswerFeedback(analysis,candidateAnswer);
+          var answerfeedback = _storeAnswerFeedback(analysis, candidateAnswer);
           turns[_currentTurn?.currentTurn]?.answerFeedback = answerfeedback;
           _lastTurn = turns[_currentTurn?.currentTurn];
         }
@@ -204,8 +215,12 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     }
 
     if (t == 'session_end') {
-      finalScore = (msg['score'] is num) ? (msg['score'] as num).toDouble() : null;
-      finalSummary = msg['summary'] is Map ? Map<String, dynamic>.from(msg['summary']) : null;
+      finalScore = (msg['score'] is num)
+          ? (msg['score'] as num).toDouble()
+          : null;
+      finalSummary = msg['summary'] is Map
+          ? Map<String, dynamic>.from(msg['summary'])
+          : null;
       // ensure listeners update
       var analysis = msg["summary"];
 
@@ -227,16 +242,19 @@ class AdaptiveSessionProvider extends ChangeNotifier {
 
   void _storeFeedbackFromAnalysis(Map m) {
     // The server may send which question it's analysing. Try to get question_id or fallback to current.
-    final qid = m['question_id']?.toString() ?? _currentTurn?.interviewQuestion.getId ;
-    final turnIndex = m['turn_index'] ??  _currentTurn?.currentTurn;
-    final question = m['question']?.toString() ?? _currentTurn?.interviewQuestion.getQuestion;
+    final qid =
+        m['question_id']?.toString() ?? _currentTurn?.interviewQuestion.getId;
+    final turnIndex = m['turn_index'] ?? _currentTurn?.currentTurn;
+    final question =
+        m['question']?.toString() ??
+        _currentTurn?.interviewQuestion.getQuestion;
     final feedback = AnswerFeedback(
       score: m['score'] != null ? (m['score'] as num).toDouble() : null,
       rationale: m['rationale']?.toString(),
-      modelAnswer: m['model_answer']?.toString() ?? m['modelAnswer']?.toString(),
+      modelAnswer:
+          m['model_answer']?.toString() ?? m['modelAnswer']?.toString(),
     );
     _currentTurn?.answerFeedback = (feedback);
-
   }
 
   // two options to send answer:
@@ -259,7 +277,7 @@ class AdaptiveSessionProvider extends ChangeNotifier {
         'text': text,
         'end_session': endSession,
         'client_message_id': _randomClientId(),
-      }
+      },
     };
     _channel!.sink.add(jsonEncode(payload));
   }
@@ -281,7 +299,7 @@ class AdaptiveSessionProvider extends ChangeNotifier {
         'audio_mime': audioMime,
         'end_session': endSession,
         'client_message_id': _randomClientId(),
-      }
+      },
     };
     _channel!.sink.add(jsonEncode(payload));
   }
@@ -290,17 +308,18 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     required Uint8List audioBytes, // e.g. '/upload_answer_audio'
     required bool endSession,
   }) async {
-
     //TODO: this will be done when the cadidate submits the question's answeer
-    if(_currentTurn == null || _currentTurn?.interviewQuestion.getId == null || sessionId == null){
+    if (_currentTurn == null ||
+        _currentTurn?.interviewQuestion.getId == null ||
+        sessionId == null) {
       debugPrint("current turn have null data");
     }
     // before upload
     _setStatus(TurnStatus.processing);
     String? audioUrl = _currentTurn?.currentAnswerLocalPath!;
-    final filename = "${sessionId}_${_currentTurn?.interviewQuestion.getId}.wav";
+    final filename =
+        "${sessionId}_${_currentTurn?.interviewQuestion.getId}.wav";
     try {
-
       if (audioUrl!.startsWith('data:audio')) {
         // Web base64 data URI
         final comma = audioUrl.indexOf(',');
@@ -308,28 +327,44 @@ class AdaptiveSessionProvider extends ChangeNotifier {
         // Decode base64 OFF the UI isolate
         final bytes = await Isolate.run(() => _decodeBase64(base64Part));
 
-        final storage = Supabase.instance.client.storage.from('interview-audio');
+        final storage = Supabase.instance.client.storage.from(
+          'interview-audio',
+        );
         // when starting upload (both web + native branches)
         _setStatus(TurnStatus.uploading);
-        await storage.uploadBinary(filename, bytes,
-            fileOptions: const FileOptions(cacheControl: '3600'));
-        final signedUrl =
-        await storage.createSignedUrl(filename, 60 * 60 * 24 * 7);
+        await storage.uploadBinary(
+          filename,
+          bytes,
+          fileOptions: const FileOptions(cacheControl: '3600'),
+        );
+        final signedUrl = await storage.createSignedUrl(
+          filename,
+          60 * 60 * 24 * 7,
+        );
         audioUrl = signedUrl;
       } else if (await fileExists(audioUrl)) {
         // Native file
         final bytes = await readFileBytes(audioUrl);
         // when starting upload (both web + native branches)
         _setStatus(TurnStatus.uploading);
-        final storage = Supabase.instance.client.storage.from('interview-audio');
-        await storage.uploadBinary(filename, bytes,
-            fileOptions: const FileOptions(cacheControl: '3600'));
-        final signedUrl =
-        await storage.createSignedUrl(filename, 60 * 60 * 24 * 7);
+        final storage = Supabase.instance.client.storage.from(
+          'interview-audio',
+        );
+        await storage.uploadBinary(
+          filename,
+          bytes,
+          fileOptions: const FileOptions(cacheControl: '3600'),
+        );
+        final signedUrl = await storage.createSignedUrl(
+          filename,
+          60 * 60 * 24 * 7,
+        );
         audioUrl = signedUrl;
       }
     } catch (e) {
-      debugPrint('[Upload] failed for ${_currentTurn?.interviewQuestion.getId}: $e');
+      debugPrint(
+        '[Upload] failed for ${_currentTurn?.interviewQuestion.getId}: $e',
+      );
     }
 
     final payload = {
@@ -341,10 +376,10 @@ class AdaptiveSessionProvider extends ChangeNotifier {
         'audio_url': audioUrl,
         'end_session': endSession,
         'client_message_id': _randomClientId(),
-      }
+      },
     };
     //{type: candidate_answer, data: {turn_index: 1, question_id: 74324904-9d5a-4177-b751-ec1d5f009103, question: What is a linked list and how does it differ from an array?, audio_url: https://rudfesyxjdqadzratayj.supabase.co/storage/v1/object/sign/interview-audio/69004539-059a-4432-a1f2-b6b3bc7431df_74324904-9d5a-4177-b751-ec1d5f009103.wav?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9hM2Y1Y2RhZC00NDg3LTQwMjctODE0Ni1mYjBkMzc0MDM4YzIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbnRlcnZpZXctYXVkaW8vNjkwMDQ1MzktMDU5YS00NDMyLWExZjItYjZiM2JjNzQzMWRmXzc0MzI0OTA0LTlkNWEtNDE3Ny1iNzUxLWVjMWQ1ZjAwOTEwMy53YXYiLCJpYXQiOjE3NjI3ODg1NzgsImV4cCI6MTc2MzM5MzM3OH0.9x2R6zgwbHGDnxqYJ8IHM886P_j0bVsg1qqQRUzjHGg, end_session: false, client_message_id: 1762788579490}}
-    print("payload:"+payload.toString());
+    print("payload:$payload");
     // after creating the final payload, before sending
     _setStatus(TurnStatus.uploaded);
 
@@ -388,7 +423,9 @@ class AdaptiveSessionProvider extends ChangeNotifier {
 
   void _closeWs() {
     _sub?.cancel();
-    try { _channel?.sink.close(); } catch (_) {}
+    try {
+      _channel?.sink.close();
+    } catch (_) {}
     _channel = null;
     connected = false;
     notifyListeners();
@@ -406,7 +443,10 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   }
 
   Future<String> stopAnswerRecording() async {
-    if (_currentTurn == null || _currentTurn?.interviewQuestion.getId == null || sessionId == null) throw Exception('No active question or session');
+    if (_currentTurn == null ||
+        _currentTurn?.interviewQuestion.getId == null ||
+        sessionId == null)
+      throw Exception('No active question or session');
     // Start/stop handled by AudioService mock: it will generate bytes directly
     final bytes = await audio.stopRecording();
 
@@ -418,22 +458,25 @@ class AdaptiveSessionProvider extends ChangeNotifier {
       if (bytes.isNotEmpty) {
         final b64 = base64Encode(bytes);
         localPath = 'data:audio/webm;base64,$b64'; // note webm on web
-
       }
     } else {
       // Save audio via FileService (existing behavior)
-      localPath = await _fileService.saveAudio(sessionId!,_currentTurn!.interviewQuestion.getId!, bytes);
+      localPath = await _fileService.saveAudio(
+        sessionId!,
+        _currentTurn!.interviewQuestion.getId,
+        bytes,
+      );
       _currentTurn?.currentAnswerLocalPath = localPath;
     }
 
     _lastRecording = bytes;
     _hasRecording = bytes.isNotEmpty;
 
-    print("file stored at:" + localPath);
+    print("file stored at:$localPath");
 
     //Store the current answer in interview provider's session
-    if(_currentTurn != null && _currentTurn?.interviewQuestion !=null) {
-      String id = _currentTurn!.interviewQuestion!.getId;
+    if (_currentTurn != null && _currentTurn?.interviewQuestion != null) {
+      String id = _currentTurn!.interviewQuestion.getId;
       await interview_provider?.storeAnswer(id, localPath);
     }
     notifyListeners();
@@ -441,7 +484,10 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   }
 
   Future<void> playLastRecording() async {
-    if (_currentTurn == null || _currentTurn?.interviewQuestion.getId == null || sessionId == null) return;
+    if (_currentTurn == null ||
+        _currentTurn?.interviewQuestion.getId == null ||
+        sessionId == null)
+      return;
     final path = _currentTurn?.currentAnswerLocalPath!;
     if (path == null || path.isEmpty) {
       debugPrint('[InterviewProvider] No recording to play.');
@@ -455,13 +501,16 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     }
   }
 
-  AnswerFeedback _storeAnswerFeedback(Map answer_score_map, String candidateAnswwe) {
+  AnswerFeedback _storeAnswerFeedback(
+    Map answerScoreMap,
+    String candidateAnswwe,
+  ) {
     // The server may send which question it's analysing. Try to get question_id or fallback to current.
     final feedback = AnswerFeedback(
-        score:  (answer_score_map['score'] as num).toDouble() ,
-        rationale: answer_score_map['rationale']?.toString(),
-        modelAnswer: answer_score_map['model_answer']?.toString(),
-        candidateAnswer: candidateAnswwe
+      score: (answerScoreMap['score'] as num).toDouble(),
+      rationale: answerScoreMap['rationale']?.toString(),
+      modelAnswer: answerScoreMap['model_answer']?.toString(),
+      candidateAnswer: candidateAnswwe,
     );
     return feedback;
   }
@@ -469,7 +518,6 @@ class AdaptiveSessionProvider extends ChangeNotifier {
   Future<void> clearLocalAudioFiles({required bool onlyProcessed}) async {}
 
   void removeTurn(LocalTurn t) {}
-
 
   Future<void> stopLasPlay() async {
     if (kIsWeb) {
@@ -479,16 +527,13 @@ class AdaptiveSessionProvider extends ChangeNotifier {
     }
   }
 
-
   /// Delete the last recording for the current question (UI 'delete' action)
   Future<bool> deleteRecording() async {
     final q = _currentTurn?.currentInterviewQuestion;
     if (q == null || sessionId == null) return false;
 
-
-
-    if ( _currentTurn?.currentAnswerLocalPath != null) {
-      final path =  _currentTurn?.currentAnswerLocalPath as String?;
+    if (_currentTurn?.currentAnswerLocalPath != null) {
+      final path = _currentTurn?.currentAnswerLocalPath;
       if (path != null && path.isNotEmpty) {
         if (kIsWeb) {
           debugPrint('[Web] Removing in-memory recording reference.');
@@ -524,6 +569,4 @@ class AdaptiveSessionProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-
-
 }

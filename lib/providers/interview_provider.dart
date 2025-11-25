@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:sarvasoft_moc_interview/models/generatequestions.dart';
 import 'package:sarvasoft_moc_interview/models/session_analysis.dart';
 import 'package:sarvasoft_moc_interview/providers/adaptive_session_provider.dart';
 import 'package:sarvasoft_moc_interview/providers/session_provider.dart';
+import 'package:sarvasoft_moc_interview/services/video_service.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import '../models/local_turn.dart';
@@ -15,17 +17,16 @@ import '../services/api_service.dart';
 import '../services/audio_service.dart';
 import '../services/file_service.dart';
 import '../services/storage_service.dart';
-import 'file_ops_stub.dart'
-if (dart.library.io) 'file_ops_io.dart';
+import 'file_ops_stub.dart' if (dart.library.io) 'file_ops_io.dart';
 import 'web_audio_helper_stub.dart'
-if (dart.library.html) 'web_audio_helper.dart';
+    if (dart.library.html) 'web_audio_helper.dart';
 
 // Note: don't import dart:html globally — only use it via dynamic when kIsWeb is true
-
 
 class InterviewProvider extends ChangeNotifier {
   final ApiService api;
   final AudioService audio;
+  final VideoService video;
   final FileService _fileService;
   SessionType _sessionType = SessionType.normal;
   final StorageService _storage = StorageService();
@@ -33,10 +34,12 @@ class InterviewProvider extends ChangeNotifier {
   List<InterviewQuestion> _questions = [];
   CurrentMockSession? _currentSession;
   Uint8List? _lastRecordingBytes;
+  Uint8List? _lastVideoBytes;
   int _currentIndex = 0;
   bool _hasRecording = false;
+  bool _hasVideoRecording = false;
   bool get hasRecording => _hasRecording;
-
+  bool get hasVideoRecording => _hasVideoRecording;
   Uint8List? get lastRecordingBytes => _lastRecordingBytes;
 
   List<InterviewQuestion> get questions => _questions;
@@ -44,21 +47,23 @@ class InterviewProvider extends ChangeNotifier {
   CurrentMockSession? get currentSession => _currentSession;
 
   InterviewQuestion? get currentQuestion =>
-      _questions.isNotEmpty && _currentIndex >= 0 && _currentIndex < _questions.length
-          ? _questions[_currentIndex]
-          : null;
-
+      _questions.isNotEmpty &&
+          _currentIndex >= 0 &&
+          _currentIndex < _questions.length
+      ? _questions[_currentIndex]
+      : null;
 
   InterviewProvider({
     required this.api,
     required this.audio,
+    required this.video,
     FileService? fileService,
   }) : _fileService = fileService ?? FileService();
 
   Future<void> loadQuestions(List<InterviewQuestion> fetched) async {
     _questions = fetched;
     _currentIndex = 0;
-    if(_sessionType == SessionType.normal) {
+    if (_sessionType == SessionType.normal) {
       notifyListeners();
     }
   }
@@ -69,12 +74,17 @@ class InterviewProvider extends ChangeNotifier {
   //   await _storage.setJson('sessions/latest', _currentSession!.toJson());
   //   notifyListeners();
   // }
-  Future<void> startSession(String sessionId,SessionType sessionType) async {
-    final id = !sessionId.isEmpty?sessionId : _generateId();
+  Future<void> startSession(String sessionId, SessionType sessionType) async {
+    final id = sessionId.isNotEmpty ? sessionId : _generateId();
     _sessionType = sessionType;
-    _currentSession = CurrentMockSession(id: id, startedAt: DateTime.now(), answers: [],type: sessionType);
+    _currentSession = CurrentMockSession(
+      id: id,
+      startedAt: DateTime.now(),
+      answers: [],
+      type: sessionType,
+    );
     await _storage.setJson('sessions/latest', _currentSession!.toJson());
-    if(_sessionType == SessionType.normal) {
+    if (_sessionType == SessionType.normal) {
       notifyListeners();
     }
   }
@@ -99,8 +109,9 @@ class InterviewProvider extends ChangeNotifier {
     final q = currentQuestion;
     if (q == null || _currentSession == null) return;
 
-    final answersForQ =
-    _currentSession!.answers.where((a) => a.questionId == q.id).toList();
+    final answersForQ = _currentSession!.answers
+        .where((a) => a.questionId == q.id)
+        .toList();
     final lastAnswer = answersForQ.isNotEmpty ? answersForQ.last : null;
     final path = lastAnswer?.audioPath;
     if (path == null || path.isEmpty) {
@@ -114,7 +125,6 @@ class InterviewProvider extends ChangeNotifier {
       await audio.play();
     }
   }
-
 
   //original stop last recording method
   // Future<void> stopLasPlay() async {
@@ -134,8 +144,9 @@ class InterviewProvider extends ChangeNotifier {
     final q = currentQuestion;
     if (q == null || _currentSession == null) return false;
 
-    final answersForQ =
-    _currentSession!.answers.where((a) => a.questionId == q.id).toList();
+    final answersForQ = _currentSession!.answers
+        .where((a) => a.questionId == q.id)
+        .toList();
     final lastAnswer = answersForQ.isNotEmpty ? answersForQ.last : null;
 
     if (lastAnswer != null) {
@@ -151,7 +162,9 @@ class InterviewProvider extends ChangeNotifier {
       _currentSession!.answers.remove(lastAnswer);
       audio.clearLastRecording();
       await _storage.setJson(
-          'sessions/${_currentSession!.id}', _currentSession!.toJson());
+        'sessions/${_currentSession!.id}',
+        _currentSession!.toJson(),
+      );
       notifyListeners();
       return true;
     }
@@ -190,7 +203,8 @@ class InterviewProvider extends ChangeNotifier {
 
   Future<Uint8List> stopAnswerRecording() async {
     final q = currentQuestion;
-    if (q == null || _currentSession == null) throw Exception('No active question or session');
+    if (q == null || _currentSession == null)
+      throw Exception('No active question or session');
     // Start/stop handled by AudioService mock: it will generate bytes directly
     final bytes = await audio.stopRecording();
 
@@ -202,23 +216,23 @@ class InterviewProvider extends ChangeNotifier {
       if (bytes.isNotEmpty) {
         final b64 = base64Encode(bytes);
         localPath = 'data:audio/webm;base64,$b64'; // note webm on web
-
       }
     } else {
       // Save audio via FileService (existing behavior)
-      localPath = await _fileService.saveAudio(_currentSession!.id, q.id, bytes);
+      localPath = await _fileService.saveAudio(
+        _currentSession!.id,
+        q.id,
+        bytes,
+      );
     }
 
-    await storeAnswer(q.getId,localPath);
+    await storeAnswer(q.getId, localPath);
     // ✅ Update hasRecording so UI can enable Play
     _hasRecording = bytes.isNotEmpty;
     _lastRecordingBytes = bytes;
     return bytes;
     notifyListeners();
   }
-
-
-
 
   // ---------- Submission flow (all server/upload logic lives here) ----------
   /// Submit the active session: adds session to SessionProvider (inProgress)
@@ -233,7 +247,10 @@ class InterviewProvider extends ChangeNotifier {
 
   /// Submit the active session: adds session to SessionProvider (inProgress)
   /// then launches background upload + backend call. UI only calls this method.
-  Future<void> submitSession(SessionProvider sessionProvider, {bool runInBackground = true}) async {
+  Future<void> submitSession(
+    SessionProvider sessionProvider, {
+    bool runInBackground = true,
+  }) async {
     if (_currentSession == null) throw Exception('No active session to submit');
 
     final sessionSnapshot = CurrentMockSession(
@@ -249,7 +266,10 @@ class InterviewProvider extends ChangeNotifier {
 
     // 2) Persist a local snapshot (optional)
     //TODO: remove local storage
-    await _storage.setJson('sessions/${sessionSnapshot.id}', sessionSnapshot.toJson());
+    await _storage.setJson(
+      'sessions/${sessionSnapshot.id}',
+      sessionSnapshot.toJson(),
+    );
 
     // IMPORTANT: Add to SessionProvider immediately (so UI shows an in-progress session)
     // Convert to MockInterviewSession (or keep CurrentMockSession if you have that model)
@@ -274,54 +294,57 @@ class InterviewProvider extends ChangeNotifier {
   }
 
   /// Internal: upload audio files to Supabase, call backend, update sessionProvider on completion/failure.
-  Future<void> _uploadAndSubmit(CurrentMockSession session, SessionProvider sessionProvider) async {
+  Future<void> _uploadAndSubmit(
+    CurrentMockSession session,
+    SessionProvider sessionProvider,
+  ) async {
     try {
       final uploadedAnswers = <Map<String, dynamic>>[];
 
-          //Original for loop to upload audio files
-          // for (final a in session.answers) {
-          //   String audioUrl = a
-          //       .audioPath; // by default keep original path (in case already remote)
-          //
-          //
-          //   // if local file path exists, upload to Supabase bucket 'interview-audio'
-          //   if (audioUrl != null && audioUrl.isNotEmpty &&
-          //       await File(audioUrl).exists()) {
-          //     debugPrint("uploading to supabase:" + audioUrl.toString());
-          //
-          //     final bytes = await File(audioUrl).readAsBytes();
-          //     final filename = "${session.id}_${a.questionId}.wav";
-          //     debugPrint("filename will be:" + filename);
-          //     final storage = Supabase.instance.client.storage.from(
-          //         'interview-audio');
-          //
-          //     // Upload bytes (overwrite: false -> set up as desired)
-          //     try {
-          //       await storage.uploadBinary(
-          //         filename,
-          //         bytes,
-          //         fileOptions: const FileOptions(cacheControl: '3600'),
-          //         retryAttempts: 3, // will retry up to 3 times
-          //       );
-          //       print('✅ Upload succeeded');
-          //     } catch (e, st) {
-          //       print('❌ Upload failed after 3 retries: $e');
-          //       // handle error (show snackbar, log to Sentry, etc.)
-          //     }
-          //     // Create a signed URL (choose expiry you prefer). Using 7 days here.
-          //     final signedUrl = await storage.createSignedUrl(
-          //         filename, 60 * 60 * 24 * 7);
-          //
-          //     audioUrl = signedUrl;
-          //   }
-          //
-          //   uploadedAnswers.add({
-          //     'question_id': a.questionId,
-          //     'audio_url': audioUrl,
-          //     'transcript': a.transcript,
-          //     'timestamp': a.timestamp,
-          //   });
-          // }
+      //Original for loop to upload audio files
+      // for (final a in session.answers) {
+      //   String audioUrl = a
+      //       .audioPath; // by default keep original path (in case already remote)
+      //
+      //
+      //   // if local file path exists, upload to Supabase bucket 'interview-audio'
+      //   if (audioUrl != null && audioUrl.isNotEmpty &&
+      //       await File(audioUrl).exists()) {
+      //     debugPrint("uploading to supabase:" + audioUrl.toString());
+      //
+      //     final bytes = await File(audioUrl).readAsBytes();
+      //     final filename = "${session.id}_${a.questionId}.wav";
+      //     debugPrint("filename will be:" + filename);
+      //     final storage = Supabase.instance.client.storage.from(
+      //         'interview-audio');
+      //
+      //     // Upload bytes (overwrite: false -> set up as desired)
+      //     try {
+      //       await storage.uploadBinary(
+      //         filename,
+      //         bytes,
+      //         fileOptions: const FileOptions(cacheControl: '3600'),
+      //         retryAttempts: 3, // will retry up to 3 times
+      //       );
+      //       print('✅ Upload succeeded');
+      //     } catch (e, st) {
+      //       print('❌ Upload failed after 3 retries: $e');
+      //       // handle error (show snackbar, log to Sentry, etc.)
+      //     }
+      //     // Create a signed URL (choose expiry you prefer). Using 7 days here.
+      //     final signedUrl = await storage.createSignedUrl(
+      //         filename, 60 * 60 * 24 * 7);
+      //
+      //     audioUrl = signedUrl;
+      //   }
+      //
+      //   uploadedAnswers.add({
+      //     'question_id': a.questionId,
+      //     'audio_url': audioUrl,
+      //     'transcript': a.transcript,
+      //     'timestamp': a.timestamp,
+      //   });
+      // }
 
       for (final a in session.answers) {
         String audioUrl = a.audioPath;
@@ -332,21 +355,35 @@ class InterviewProvider extends ChangeNotifier {
             final base64Part = audioUrl.substring(comma + 1);
             final bytes = base64Decode(base64Part);
             final filename = "${session.id}_${a.questionId}.wav";
-            final storage = Supabase.instance.client.storage.from('interview-audio');
-            await storage.uploadBinary(filename, bytes,
-                fileOptions: const FileOptions(cacheControl: '3600'));
-            final signedUrl =
-            await storage.createSignedUrl(filename, 60 * 60 * 24 * 7);
+            final storage = Supabase.instance.client.storage.from(
+              'interview-audio',
+            );
+            await storage.uploadBinary(
+              filename,
+              bytes,
+              fileOptions: const FileOptions(cacheControl: '3600'),
+            );
+            final signedUrl = await storage.createSignedUrl(
+              filename,
+              60 * 60 * 24 * 7,
+            );
             audioUrl = signedUrl;
           } else if (await fileExists(audioUrl)) {
             // Native file
             final bytes = await readFileBytes(audioUrl);
             final filename = "${session.id}_${a.questionId}.wav";
-            final storage = Supabase.instance.client.storage.from('interview-audio');
-            await storage.uploadBinary(filename, bytes,
-                fileOptions: const FileOptions(cacheControl: '3600'));
-            final signedUrl =
-            await storage.createSignedUrl(filename, 60 * 60 * 24 * 7);
+            final storage = Supabase.instance.client.storage.from(
+              'interview-audio',
+            );
+            await storage.uploadBinary(
+              filename,
+              bytes,
+              fileOptions: const FileOptions(cacheControl: '3600'),
+            );
+            final signedUrl = await storage.createSignedUrl(
+              filename,
+              60 * 60 * 24 * 7,
+            );
             audioUrl = signedUrl;
           }
         } catch (e) {
@@ -361,20 +398,19 @@ class InterviewProvider extends ChangeNotifier {
         });
       }
 
-
-
       // After you’ve uploaded audios and replaced audioPath with Supabase URLs:
-      final updatedSession =
-      CurrentMockSession(
+      final updatedSession = CurrentMockSession(
         id: session.id,
         startedAt: session.startedAt,
         answers: uploadedAnswers
-            .map((a) => Answer(
-          questionId: a['question_id'],
-          audioPath: a['audio_url'],
-          transcript: a['transcript'],
-          timestamp: a['timestamp'],
-        ))
+            .map(
+              (a) => Answer(
+                questionId: a['question_id'],
+                audioPath: a['audio_url'],
+                transcript: a['transcript'],
+                timestamp: a['timestamp'],
+              ),
+            )
             .toList(),
         status: SessionStatus.inProgress,
       );
@@ -383,7 +419,7 @@ class InterviewProvider extends ChangeNotifier {
 
       print(jsonString);
 
-      debugPrint("session data:"+ updatedSession.toString());
+      debugPrint("session data:$updatedSession");
       // Call your ApiService to send data to backend
 
       //update current session
@@ -392,19 +428,20 @@ class InterviewProvider extends ChangeNotifier {
 
       var analysis = resp['analysis'];
 
-      await storeSessionAnalysis(analysis,sessionProvider);
-    } catch (e, st) {
+      await storeSessionAnalysis(analysis, sessionProvider);
+    } catch (e) {
       debugPrint('[InterviewProvider] Failed to parse analysis: $e');
       // still mark as failed or keep in-progress until manual refresh
     }
-
   }
-
 
   void next() {
     if (_questions.isEmpty) return;
     if (_currentIndex < _questions.length - 1) {
       _currentIndex++;
+      _hasVideoRecording = _currentSession!.answers.any(
+            (a) => a.videoPath != null && a.questionId == questions[_currentIndex].id,
+      );
       notifyListeners();
     }
   }
@@ -413,6 +450,9 @@ class InterviewProvider extends ChangeNotifier {
     if (_questions.isEmpty) return;
     if (_currentIndex > 0) {
       _currentIndex--;
+      _hasVideoRecording = _currentSession!.answers.any(
+            (a) => a.videoPath != null && a.questionId == questions[_currentIndex].id,
+      );
       notifyListeners();
     }
   }
@@ -421,21 +461,26 @@ class InterviewProvider extends ChangeNotifier {
     _lastRecordingBytes = null;
   }
 
-  void initalizeReplaceDataWithAdaptiveData(LocalTurn? currentTurn, String? sessionId){
-    if(sessionId!=null && currentTurn!=null) {
-      InterviewQuestion question = InterviewQuestion(question: currentTurn.interviewQuestion.getQuestion,
-          tags: currentTurn.interviewQuestion.getTags, difficulty: currentTurn.interviewQuestion.getDifficulty.toString(),
-          id: currentTurn.interviewQuestion.getId);
+  void initalizeReplaceDataWithAdaptiveData(
+    LocalTurn? currentTurn,
+    String? sessionId,
+  ) {
+    if (sessionId != null && currentTurn != null) {
+      InterviewQuestion question = InterviewQuestion(
+        question: currentTurn.interviewQuestion.getQuestion,
+        tags: currentTurn.interviewQuestion.getTags,
+        difficulty: currentTurn.interviewQuestion.getDifficulty.toString(),
+        id: currentTurn.interviewQuestion.getId,
+      );
       List<InterviewQuestion> firstQuestion = [];
       firstQuestion.add(question);
       loadQuestions(firstQuestion);
-      startSession(sessionId,SessionType.adaptive);
+      startSession(sessionId, SessionType.adaptive);
     }
   }
 
-  Future<void> storeAnswer(String id, String localPath) async{
-
-    print("file stored at:" + localPath);
+  Future<void> storeAnswer(String id, String localPath) async {
+    print("file stored at:$localPath");
     // Create Answer object using audioPath (on web it's a data URI)
     final answer = Answer(
       questionId: id,
@@ -449,15 +494,20 @@ class InterviewProvider extends ChangeNotifier {
     _currentSession!.answers.add(answer);
 
     // Persist session snapshot
-    await _storage.setJson('sessions/${_currentSession!.id}', _currentSession!.toJson());
+    await _storage.setJson(
+      'sessions/${_currentSession!.id}',
+      _currentSession!.toJson(),
+    );
   }
 
-  Future<void> storeSessionAnalysis(analysis, SessionProvider sessionProvider) async {
+  Future<void> storeSessionAnalysis(
+    analysis,
+    SessionProvider sessionProvider,
+  ) async {
+    final sessionAnalysis = SessionAnalysis.fromJson(analysis);
 
-    final session_analysis = SessionAnalysis.fromJson(analysis);
-
-    _currentSession?.analysis = session_analysis;
-    _currentSession?.score =session_analysis.overall_score?.toDouble();
+    _currentSession?.analysis = sessionAnalysis;
+    _currentSession?.score = sessionAnalysis.overall_score.toDouble();
     _currentSession?.status = SessionStatus.completed;
     // Finally update SessionProvider so it flips UI to completed and caches analysis:
     sessionProvider.updateSessionStatusFromMock(_currentSession!);
@@ -467,5 +517,133 @@ class InterviewProvider extends ChangeNotifier {
     return await api.getInsights();
   }
 
+  //Video stuff
+  // -------------------- VIDEO LIFECYCLE (new) --------------------
+  // start video recording (video-only)
+  Future<void> startVideoRecording() async {
+    _hasVideoRecording = false;
+    _lastVideoBytes = null;
+    await video.startRecording();
+    notifyListeners();
+  }
 
+  // stop video recording, save path to Answer.videoPath, return bytes
+  Future<Uint8List> stopVideoRecording() async {
+    final q = currentQuestion;
+    if (q == null || _currentSession == null)
+      throw Exception('No active question/session');
+
+    final bytes = await video.stopRecording();
+
+    String videoPath;
+    if (kIsWeb) {
+      videoPath = video.toWebDataUri(bytes);
+    } else {
+      videoPath = await _fileService.saveVideo(
+        _currentSession!.id,
+        q.id,
+        bytes,
+      );
+    }
+
+    final ans = Answer(
+      questionId: q.id,
+      transcript: null,
+      audioPath:
+          '', // keep audio untouched; audioPath left blank for video-only answer
+      videoPath: videoPath,
+      timestamp: DateTime.now().toIso8601String(),
+    );
+
+    // Add the video answer to session AND keep audio answers intact (no overwrite)
+    // Remove old video entry for this question
+    _currentSession!.answers.removeWhere(
+          (a) => a.videoPath != null && a.questionId == q.id,
+      );
+
+    // Add new one
+    _currentSession!.answers.add(ans);
+    await _storage.setJson(
+      'sessions/${_currentSession!.id}',
+      _currentSession!.toJson(),
+    );
+
+    notifyListeners();
+    _lastVideoBytes = bytes;
+
+    _hasVideoRecording = true;
+    return bytes;
+  }
+
+  // returns the playable path for last video (web: data URI, mobile: local path)
+  Future<String?> playLastVideo() async {
+    final q = currentQuestion;
+    if (q == null || _currentSession == null) return null;
+
+    final answersForQ = _currentSession!.answers
+        .where(
+          (a) =>
+              a.questionId == q.id &&
+              a.videoPath != null &&
+              a.videoPath!.isNotEmpty,
+        )
+        .toList();
+
+    if (answersForQ.isEmpty) return null;
+
+    return answersForQ.last.videoPath;
+  }
+
+  // delete only the last video recording for current question
+  Future<bool> deleteLastVideoRecording() async {
+    final q = currentQuestion;
+    if (q == null || _currentSession == null) return false;
+
+    final answersForQ = _currentSession!.answers
+        .where(
+          (a) =>
+              a.questionId == q.id &&
+              a.videoPath != null &&
+              a.videoPath!.isNotEmpty,
+        )
+        .toList();
+
+    if (answersForQ.isEmpty) return false; // << FIX
+
+    final last = answersForQ.last;
+    final path = last.videoPath;
+
+    if (!kIsWeb && path != null && path.isNotEmpty) {
+      try {
+        final f = File(path);
+        if (await f.exists()) await f.delete();
+      } catch (_) {}
+    }
+
+    _currentSession!.answers.remove(last);
+
+    await _storage.setJson(
+      'sessions/${_currentSession!.id}',
+      _currentSession!.toJson(),
+    );
+
+    _hasVideoRecording = _currentSession!.answers.any(
+      (a) =>
+          a.questionId == q.id &&
+          a.videoPath != null &&
+          a.videoPath!.isNotEmpty,
+    );
+    _hasVideoRecording = false;
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> initCamera() async {
+    print("INIT CAMERA: kIsWeb = $kIsWeb");
+    print("INIT CAMERA: Platform = ${defaultTargetPlatform}");
+
+    if (video.webStream == null && kIsWeb) {
+      await video.initCamera(); // SAFE: this is a user-triggered tap
+    }
+  }
 }

@@ -8,10 +8,10 @@ class PlaceholderScreen extends StatelessWidget {
   final String message;
 
   const PlaceholderScreen({
-    Key? key,
+    super.key,
     required this.title,
     this.message = 'This feature is coming soon',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

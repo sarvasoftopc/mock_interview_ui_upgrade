@@ -26,7 +26,9 @@ class SettingsScreen extends StatelessWidget {
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isWide ? 800 : double.infinity),
+            constraints: BoxConstraints(
+              maxWidth: isWide ? 800 : double.infinity,
+            ),
             child: SingleChildScrollView(
               padding: EdgeInsets.all(isWide ? 32 : 16),
               child: Column(
@@ -120,7 +122,10 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.warning_amber, color: Colors.red.shade700),
+                            Icon(
+                              Icons.warning_amber,
+                              color: Colors.red.shade700,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               'Danger Zone',
@@ -151,15 +156,21 @@ class SettingsScreen extends StatelessWidget {
                                     onPressed: () {
                                       // TODO: Implement account deletion
                                       Navigator.pop(ctx);
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Account deletion not implemented'),
+                                          content: Text(
+                                            'Account deletion not implemented',
+                                          ),
                                         ),
                                       );
                                     },
                                     child: Text(
                                       'Delete',
-                                      style: TextStyle(color: Colors.red.shade700),
+                                      style: TextStyle(
+                                        color: Colors.red.shade700,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -201,10 +212,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Icon(icon, color: AppTheme.primaryPurple),
                 const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: AppTheme.titleMedium,
-                ),
+                Text(title, style: AppTheme.titleMedium),
               ],
             ),
           ),
@@ -252,7 +260,7 @@ class SettingsScreen extends StatelessWidget {
           Expanded(child: Text(label, style: AppTheme.bodyMedium)),
           Switch(
             value: value,
-            activeColor: AppTheme.primaryPurple,
+            activeThumbColor: AppTheme.primaryPurple,
             onChanged: onChanged,
           ),
         ],

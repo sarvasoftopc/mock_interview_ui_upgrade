@@ -9,9 +9,8 @@ import '../../providers/cv_jd_provider.dart';
 import '../../providers/interview_provider.dart';
 import '../widgets/app_drawer.dart';
 
-
 class SkillDashboardScreen extends StatefulWidget {
-  const SkillDashboardScreen({Key? key}) : super(key: key);
+  const SkillDashboardScreen({super.key});
 
   @override
   State<SkillDashboardScreen> createState() => _SkillDashboardScreenState();
@@ -35,18 +34,19 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
     final provider = context.read<InterviewProvider>();
 
     final cvJdProvider = context.read<CvJdProvider>();
-    if (cvJdProvider.sessionId.isNotEmpty && cvJdProvider.questions.isNotEmpty) {
+    if (cvJdProvider.sessionId.isNotEmpty &&
+        cvJdProvider.questions.isNotEmpty) {
       // use existing session/questions
       debugPrint("current session with session id:${cvJdProvider.sessionId}");
       provider.loadQuestions(cvJdProvider.questions);
-      provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+      provider.startSession(cvJdProvider.sessionId, SessionType.normal);
     } else {
       // fetch analysis & questions (provider handles repeated calls / caching)
       await cvJdProvider.extractSkillsAndFetchQuestions();
 
       debugPrint("current session with session id:${cvJdProvider.sessionId}");
       provider.loadQuestions(cvJdProvider.questions);
-      provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+      provider.startSession(cvJdProvider.sessionId, SessionType.normal);
     }
     Navigator.of(context).pushNamed('/question');
   }
@@ -62,8 +62,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
 
     return Scaffold(
       appBar: CustomAppBar(
-          context: context,
-          titleText: AppLocalizations.of(context).skillsDashboard),
+        context: context,
+        titleText: AppLocalizations.of(context).skillsDashboard,
+      ),
       drawer: const AppDrawer(),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -84,9 +85,20 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                         children: [
                           _buildMatchScoreCard(context, matchScore, summary),
                           const SizedBox(height: 16),
-                          _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore),
+                          _buildInsightsCard(
+                            context,
+                            overlapSkills,
+                            missingSkills,
+                            extraSkills,
+                            matchScore,
+                          ),
                           const SizedBox(height: 16),
-                          _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
+                          _buildSkillsTabs(
+                            context,
+                            overlapSkills,
+                            missingSkills,
+                            extraSkills,
+                          ),
                           const SizedBox(height: 24),
                           Row(
                             children: [
@@ -100,19 +112,33 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                                   ),
                                   child: ElevatedButton.icon(
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/preparationHub',
-                                          arguments: {"missingSkills": missingSkills});
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/preparationHub',
+                                        arguments: {
+                                          "missingSkills": missingSkills,
+                                        },
+                                      );
                                     },
-                                    icon: const Icon(Icons.school, color: Colors.white),
+                                    icon: const Icon(
+                                      Icons.school,
+                                      color: Colors.white,
+                                    ),
                                     label: Text(
-                                      AppLocalizations.of(context).prepareMissingSkills,
-                                      style: const TextStyle(color: Colors.white),
+                                      AppLocalizations.of(
+                                        context,
+                                      ).prepareMissingSkills,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       elevation: 0,
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
-                                      padding: const EdgeInsets.symmetric(vertical: 18),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 18,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -125,22 +151,35 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
-                                      colors: [Colors.deepPurple, Colors.pinkAccent],
+                                      colors: [
+                                        Colors.deepPurple,
+                                        Colors.pinkAccent,
+                                      ],
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ElevatedButton.icon(
-                                    onPressed: () => _startMockInterview(context),
-                                    icon: const Icon(Icons.mic, color: Colors.white),
+                                    onPressed: () =>
+                                        _startMockInterview(context),
+                                    icon: const Icon(
+                                      Icons.mic,
+                                      color: Colors.white,
+                                    ),
                                     label: Text(
-                                      AppLocalizations.of(context).startMockInterview,
-                                      style: const TextStyle(color: Colors.white),
+                                      AppLocalizations.of(
+                                        context,
+                                      ).startMockInterview,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       elevation: 0,
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
-                                      padding: const EdgeInsets.symmetric(vertical: 18),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 18,
+                                      ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
@@ -163,7 +202,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                     child: Column(
                       children: [
                         Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           elevation: 2,
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -172,13 +213,18 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                                 ListTile(
                                   leading: const Icon(Icons.timeline),
                                   title: Text("Reset Sessions"),
-                                  onTap: () => Navigator.pushNamed(context, '/sessions'),
+                                  onTap: () =>
+                                      Navigator.pushNamed(context, '/sessions'),
                                 ),
                                 const Divider(),
                                 ListTile(
                                   leading: const Icon(Icons.playlist_add_check),
                                   title: Text("Recommended Practice"),
-                                  onTap: () => Navigator.pushNamed(context, '/preparationHub', arguments: {"missingSkills": missingSkills}),
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    '/preparationHub',
+                                    arguments: {"missingSkills": missingSkills},
+                                  ),
                                 ),
                                 const Divider(),
                                 ListTile(
@@ -194,16 +240,25 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                         ),
                         const SizedBox(height: 12),
                         Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           elevation: 2,
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Quick Tip", style: Theme.of(context).textTheme.titleMedium),
+                                Text(
+                                  "Quick Tip",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
                                 const SizedBox(height: 8),
-                                const Text("• Add missing skills to your CV\n• Practice STAR stories for behavioral questions\n• Record 5-minute answers and review"),
+                                const Text(
+                                  "• Add missing skills to your CV\n• Practice STAR stories for behavioral questions\n• Record 5-minute answers and review",
+                                ),
                               ],
                             ),
                           ),
@@ -226,13 +281,32 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _buildMatchScoreCard(context, matchScore, summary)),
+                        Expanded(
+                          child: _buildMatchScoreCard(
+                            context,
+                            matchScore,
+                            summary,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore)),
+                        Expanded(
+                          child: _buildInsightsCard(
+                            context,
+                            overlapSkills,
+                            missingSkills,
+                            extraSkills,
+                            matchScore,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
+                    _buildSkillsTabs(
+                      context,
+                      overlapSkills,
+                      missingSkills,
+                      extraSkills,
+                    ),
                     const SizedBox(height: 24),
                     Row(
                       children: [
@@ -246,19 +320,29 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                             ),
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                Navigator.pushNamed(context, '/preparationHub',
-                                    arguments: {"missingSkills": missingSkills});
+                                Navigator.pushNamed(
+                                  context,
+                                  '/preparationHub',
+                                  arguments: {"missingSkills": missingSkills},
+                                );
                               },
-                              icon: const Icon(Icons.school, color: Colors.white),
+                              icon: const Icon(
+                                Icons.school,
+                                color: Colors.white,
+                              ),
                               label: Text(
-                                AppLocalizations.of(context).prepareMissingSkills,
+                                AppLocalizations.of(
+                                  context,
+                                ).prepareMissingSkills,
                                 style: const TextStyle(color: Colors.white),
                               ),
                               style: ElevatedButton.styleFrom(
                                 elevation: 0,
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(vertical: 18),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -286,7 +370,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                                 elevation: 0,
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
-                                padding: const EdgeInsets.symmetric(vertical: 18),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -313,12 +399,23 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                 const SizedBox(height: 16),
 
                 // ===== Insights =====
-                _buildInsightsCard(context, overlapSkills, missingSkills, extraSkills, matchScore),
+                _buildInsightsCard(
+                  context,
+                  overlapSkills,
+                  missingSkills,
+                  extraSkills,
+                  matchScore,
+                ),
 
                 const SizedBox(height: 16),
 
                 // ===== Skills Tabs =====
-                _buildSkillsTabs(context, overlapSkills, missingSkills, extraSkills),
+                _buildSkillsTabs(
+                  context,
+                  overlapSkills,
+                  missingSkills,
+                  extraSkills,
+                ),
 
                 const SizedBox(height: 24),
 
@@ -335,8 +432,11 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                         ),
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/preparationHub',
-                                arguments: {"missingSkills": missingSkills});
+                            Navigator.pushNamed(
+                              context,
+                              '/preparationHub',
+                              arguments: {"missingSkills": missingSkills},
+                            );
                           },
                           icon: const Icon(Icons.school, color: Colors.white),
                           label: Text(
@@ -384,7 +484,7 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           );
@@ -394,7 +494,11 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
   }
 
   // === Match Score Card ===
-  Widget _buildMatchScoreCard(BuildContext context, double matchScore, String summary) {
+  Widget _buildMatchScoreCard(
+    BuildContext context,
+    double matchScore,
+    String summary,
+  ) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -441,7 +545,9 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
               icon: const Icon(Icons.article_outlined),
               label: const Text("View Summary"),
               style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 showModalBottomSheet(
@@ -461,8 +567,13 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
   }
 
   // === Insights Card ===
-  Widget _buildInsightsCard(BuildContext context, List<String> overlap,
-      List<String> missing, List<String> extra, double score) {
+  Widget _buildInsightsCard(
+    BuildContext context,
+    List<String> overlap,
+    List<String> missing,
+    List<String> extra,
+    double score,
+  ) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -472,17 +583,36 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(AppLocalizations.of(context).insights,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(fontWeight: FontWeight.bold)),
+              child: Text(
+                AppLocalizations.of(context).insights,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 12),
-            _insightRow(context, AppLocalizations.of(context).matchedSkills, "${overlap.length}"),
-            _insightRow(context, AppLocalizations.of(context).missingSkills, "${missing.length}"),
-            _insightRow(context, AppLocalizations.of(context).extraSkills, "${extra.length}"),
-            _insightRow(context, AppLocalizations.of(context).strengthArea, overlap.isNotEmpty ? overlap.first : AppLocalizations.of(context).na),
+            _insightRow(
+              context,
+              AppLocalizations.of(context).matchedSkills,
+              "${overlap.length}",
+            ),
+            _insightRow(
+              context,
+              AppLocalizations.of(context).missingSkills,
+              "${missing.length}",
+            ),
+            _insightRow(
+              context,
+              AppLocalizations.of(context).extraSkills,
+              "${extra.length}",
+            ),
+            _insightRow(
+              context,
+              AppLocalizations.of(context).strengthArea,
+              overlap.isNotEmpty
+                  ? overlap.first
+                  : AppLocalizations.of(context).na,
+            ),
           ],
         ),
       ),
@@ -495,15 +625,32 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.indigo,
+            ),
+          ),
         ],
       ),
     );
   }
 
   // === Skills Tabs ===
-  Widget _buildSkillsTabs(BuildContext context, List<String> overlap, List<String> missing, List<String> extra) {
+  Widget _buildSkillsTabs(
+    BuildContext context,
+    List<String> overlap,
+    List<String> missing,
+    List<String> extra,
+  ) {
     return DefaultTabController(
       length: 3,
       child: Column(
@@ -543,11 +690,21 @@ class _SkillDashboardScreenState extends State<SkillDashboardScreen> {
         spacing: 8,
         runSpacing: 8,
         children: skills
-            .map((skill) => Chip(
-          label: Text(skill, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ))
+            .map(
+              (skill) => Chip(
+                label: Text(
+                  skill,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                backgroundColor: color,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            )
             .toList(),
       ),
     );

@@ -17,7 +17,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   int _selectedNavIndex = 0;
   String _analysisMode = 'jd'; // 'jd' or 'role'
@@ -37,6 +38,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CvJdProvider>(context, listen: false).getRoles();
+    });
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -60,22 +64,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       drawer: const AppDrawer(),
-      appBar: CustomAppBar(
-        context: context,
-        titleText: 'Capabily',
-        backgroundColor: Colors.white,
-      ),
+      appBar: CustomAppBar(context: context, titleText: 'Capabily'),
       body: LoadingOverlay(
         isLoading: cvJdProvider.loading,
         message: 'Analyzing your documents...',
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: isWide ? AppTheme.space12 : (isTablet ? AppTheme.space8 : AppTheme.space4),
+            horizontal: isWide
+                ? AppTheme.space12
+                : (isTablet ? AppTheme.space8 : AppTheme.space4),
             vertical: AppTheme.space6,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: isWide ? 1400 : double.infinity),
+              constraints: BoxConstraints(
+                maxWidth: isWide ? 1400 : double.infinity,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -103,9 +107,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                         const SizedBox(width: AppTheme.space6),
-                        Expanded(
-                          child: _buildQuickActions(context),
-                        ),
+                        Expanded(child: _buildQuickActions(context)),
                       ],
                     )
                   else
@@ -142,7 +144,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildHeroSection(BuildContext context, ProfileProvider profileProvider, bool isWide, bool isTablet) {
+  Widget _buildHeroSection(
+    BuildContext context,
+    ProfileProvider profileProvider,
+    bool isWide,
+    bool isTablet,
+  ) {
     final profile = profileProvider.profile;
     final userName = profile?.fullName ?? 'there';
     final greeting = _getGreeting();
@@ -164,8 +171,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     '$greeting, $userName! 👋',
-                    style: (isWide ? AppTheme.displayMedium : AppTheme.headlineLarge)
-                        .copyWith(color: Colors.white),
+                    style:
+                        (isWide
+                                ? AppTheme.displayMedium
+                                : AppTheme.headlineLarge)
+                            .copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: AppTheme.space3),
                   Text(
@@ -182,19 +192,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ModernButton(
                         text: 'Start Interview',
                         icon: Icons.play_arrow,
-                        onPressed: () => Navigator.pushNamed(context, '/practice'),
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/practice'),
                       ),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                         ),
                         child: TextButton.icon(
-                          onPressed: () => Navigator.pushNamed(context, '/insights'),
-                          icon: const Icon(Icons.analytics, color: AppTheme.primaryPurple),
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/insights'),
+                          icon: const Icon(
+                            Icons.analytics,
+                            color: AppTheme.primaryPurple,
+                          ),
                           label: const Text(
                             'View Insights',
-                            style: TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: AppTheme.primaryPurple,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -203,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            if (isWide) ..[
+            if (isWide) ...[
               const SizedBox(width: AppTheme.space8),
               Container(
                 width: 280,
@@ -211,7 +231,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-                  border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 2,
+                  ),
                 ),
                 child: Center(
                   child: Icon(
@@ -230,13 +253,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildQuickStats(BuildContext context, bool isWide, bool isTablet) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
+            ),
+          ),
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -330,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             subtitle: 'Compare your CV against job requirements or roles',
           ),
           const SizedBox(height: AppTheme.space4),
-          
+
           // Mode Selector
           Container(
             padding: const EdgeInsets.all(4),
@@ -359,9 +382,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ],
             ),
           ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           // Info Box
           Container(
             padding: const EdgeInsets.all(AppTheme.space4),
@@ -373,7 +396,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.2)),
+              border: Border.all(
+                color: AppTheme.primaryPurple.withOpacity(0.2),
+              ),
             ),
             child: Row(
               children: [
@@ -390,9 +415,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ],
             ),
           ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           // CV Upload (always shown)
           _UploadCard(
             icon: Icons.description,
@@ -400,9 +425,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             isUploaded: provider.cvText.isNotEmpty,
             onTap: () => FileUtil.selectFile(context, true, provider),
           ),
-          
+
           const SizedBox(height: AppTheme.space3),
-          
+
           // JD Upload or Role Selector
           if (_analysisMode == 'jd')
             _UploadCard(
@@ -427,7 +452,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
               child: DropdownButtonFormField<String>(
-                value: _selectedRole,
+                isExpanded: true,
+                initialValue: _selectedRole,
                 hint: Row(
                   children: [
                     Icon(
@@ -435,12 +461,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       color: AppTheme.textSecondary,
                       size: 24,
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Select Target Role'),
+                    SizedBox(width: 12),
+                    Text('Select Target Role'),
                   ],
                 ),
-                items: _roles
-                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                items: provider.roles
+                    .map(
+                      (role) => DropdownMenuItem<String>(
+                        value: role.roleId.toString(),
+                        child: Text(role.roleName),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _selectedRole = v),
                 decoration: const InputDecoration(
@@ -449,22 +480,23 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ),
               ),
             ),
-          
+
           const SizedBox(height: AppTheme.space4),
-          
+
           // Analyze Button
           ModernButton(
             text: provider.loading ? 'Analyzing...' : 'Analyze Match',
             icon: Icons.analytics,
             isFullWidth: true,
             isLoading: provider.loading,
-            onPressed: (_analysisMode == 'jd'
+            onPressed:
+                (_analysisMode == 'jd'
                     ? (provider.cvText.isNotEmpty &&
-                        provider.jdText.isNotEmpty &&
-                        !provider.loading)
+                          provider.jdText.isNotEmpty &&
+                          !provider.loading)
                     : (provider.cvText.isNotEmpty &&
-                        _selectedRole != null &&
-                        !provider.loading))
+                          _selectedRole != null &&
+                          !provider.loading))
                 ? () {
                     if (_analysisMode == 'jd') {
                       CvJDAnalysis().performSkillAnalysis(context, provider);
@@ -472,7 +504,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       // TODO: Implement CV vs Role analysis
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Analyzing CV against $_selectedRole role...'),
+                          content: Text(
+                            'Analyzing CV against $_selectedRole role...',
+                          ),
                           backgroundColor: AppTheme.info,
                         ),
                       );
@@ -480,8 +514,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   }
                 : null,
           ),
-          
-          if (provider.matchScore != null) ..[
+
+          if (provider.matchScore != null) ...[
             const SizedBox(height: AppTheme.space4),
             Container(
               padding: const EdgeInsets.all(AppTheme.space4),
@@ -498,15 +532,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       color: AppTheme.success,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: AppTheme.space3),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Match Score: ${provider.matchScore}%', style: AppTheme.titleSmall),
-                        Text('View detailed analysis', style: AppTheme.bodySmall),
+                        Text(
+                          'Match Score: ${provider.matchScore}%',
+                          style: AppTheme.titleSmall,
+                        ),
+                        Text(
+                          'View detailed analysis',
+                          style: AppTheme.bodySmall,
+                        ),
                       ],
                     ),
                   ),
@@ -562,12 +606,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildFeaturesSection(BuildContext context, bool isWide, bool isTablet) {
+  Widget _buildFeaturesSection(
+    BuildContext context,
+    bool isWide,
+    bool isTablet,
+  ) {
     final features = [
-      {'title': 'Panel Interview', 'desc': 'Multi-interviewer mode', 'icon': Icons.group, 'route': '/panelInterview'},
-      {'title': 'Career Coach', 'desc': 'AI guidance', 'icon': Icons.psychology, 'route': '/careerCoach'},
-      {'title': 'Skill Dashboard', 'desc': 'Track abilities', 'icon': Icons.dashboard, 'route': '/skills'},
-      {'title': 'Settings', 'desc': 'Customize experience', 'icon': Icons.settings, 'route': '/settings'},
+      {
+        'title': 'Panel Interview',
+        'desc': 'Multi-interviewer mode',
+        'icon': Icons.group,
+        'route': '/panelInterview',
+      },
+      {
+        'title': 'Career Coach',
+        'desc': 'AI guidance',
+        'icon': Icons.psychology,
+        'route': '/careerCoach',
+      },
+      {
+        'title': 'Skill Dashboard',
+        'desc': 'Track abilities',
+        'icon': Icons.dashboard,
+        'route': '/skills',
+      },
+      {
+        'title': 'Settings',
+        'desc': 'Customize experience',
+        'icon': Icons.settings,
+        'route': '/settings',
+      },
     ];
 
     return Column(
@@ -594,7 +662,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               icon: feature['icon'] as IconData,
               title: feature['title'] as String,
               description: feature['desc'] as String,
-              onTap: () => Navigator.pushNamed(context, feature['route'] as String),
+              onTap: () =>
+                  Navigator.pushNamed(context, feature['route'] as String),
             );
           },
         ),
@@ -632,7 +701,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Sessions'),
-          BottomNavigationBarItem(icon: Icon(Icons.insights), label: 'Insights'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.insights),
+            label: 'Insights',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
@@ -697,7 +769,11 @@ class _InterviewModeCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.textLight),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppTheme.textLight,
+            ),
           ],
         ),
       ),
@@ -726,7 +802,9 @@ class _UploadCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppTheme.space4),
         decoration: BoxDecoration(
-          color: isUploaded ? AppTheme.success.withOpacity(0.1) : AppTheme.backgroundGray,
+          color: isUploaded
+              ? AppTheme.success.withOpacity(0.1)
+              : AppTheme.backgroundGray,
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(
             color: isUploaded ? AppTheme.success : Colors.grey.shade300,
@@ -841,7 +919,11 @@ class _QuickActionTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppTheme.textLight),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: AppTheme.textLight,
+            ),
           ],
         ),
       ),

@@ -3,7 +3,7 @@ import '../../config/app_theme.dart';
 
 class SummaryBottomSheet extends StatefulWidget {
   final String summary;
-  const SummaryBottomSheet({Key? key, required this.summary}) : super(key: key);
+  const SummaryBottomSheet({super.key, required this.summary});
 
   @override
   State<SummaryBottomSheet> createState() => _SummaryBottomSheetState();
@@ -54,10 +54,7 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.white,
-                AppTheme.primaryLight.withOpacity(0.3),
-              ],
+              colors: [Colors.white, AppTheme.primaryLight.withOpacity(0.3)],
             ),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
@@ -82,7 +79,10 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
               ),
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -112,7 +112,10 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                   ],
                 ),
               ),
-              Divider(color: AppTheme.primaryPurple.withOpacity(0.2), thickness: 2),
+              Divider(
+                color: AppTheme.primaryPurple.withOpacity(0.2),
+                thickness: 2,
+              ),
               // Content
               Expanded(
                 child: FadeTransition(
@@ -127,7 +130,9 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                             border: Border.all(
                               color: AppTheme.primaryPurple.withOpacity(0.2),
                             ),
@@ -163,14 +168,19 @@ class _SummaryBottomSheetState extends State<SummaryBottomSheet>
                         onPressed: () {
                           // TODO: Implement share functionality
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Share functionality coming soon')),
+                            const SnackBar(
+                              content: Text('Share functionality coming soon'),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.share),
                         label: const Text('Share'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.primaryPurple,
-                          side: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                          side: const BorderSide(
+                            color: AppTheme.primaryPurple,
+                            width: 2,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),

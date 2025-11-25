@@ -11,7 +11,7 @@ import '../../widgets/modern_widgets.dart';
 /// Modern Insights Dashboard with upgraded UI
 /// Preserves all existing functionality
 class InsightsDashboardScreen extends StatefulWidget {
-  const InsightsDashboardScreen({Key? key}) : super(key: key);
+  const InsightsDashboardScreen({super.key});
 
   @override
   _InsightsDashboardScreenState createState() =>
@@ -52,7 +52,9 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
   List<FlSpot> _toSpots(List<dynamic>? arr) {
     if (arr == null) return [];
     return List<FlSpot>.generate(
-        arr.length, (i) => FlSpot(i.toDouble(), (arr[i] as num).toDouble()));
+      arr.length,
+      (i) => FlSpot(i.toDouble(), (arr[i] as num).toDouble()),
+    );
   }
 
   @override
@@ -64,7 +66,9 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
           backgroundColor: AppTheme.primaryPurple,
         ),
         body: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+          decoration: const BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
+          ),
           child: const Center(child: CircularProgressIndicator()),
         ),
       );
@@ -77,7 +81,9 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
           backgroundColor: AppTheme.primaryPurple,
         ),
         body: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+          decoration: const BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
+          ),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -105,13 +111,16 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
     final avgConfidence = data['avg_confidence']?.toString() ?? '0';
     final topSkills = (data['top_skills'] as Map?)?.entries.toList() ?? [];
 
-    final scoresTrend = _toSpots(List<dynamic>.from(data['trend_scores'] ?? []));
-    final confTrend =
-        _toSpots(List<dynamic>.from(data['trend_confidence'] ?? []));
+    final scoresTrend = _toSpots(
+      List<dynamic>.from(data['trend_scores'] ?? []),
+    );
+    final confTrend = _toSpots(
+      List<dynamic>.from(data['trend_confidence'] ?? []),
+    );
     final fluTrend = _toSpots(List<dynamic>.from(data['trend_fluency'] ?? []));
 
     final cfi = data['confidence_fluency_index']?.toString() ?? '0';
-    final cfi_explanations = data['cfi_explanation']?.toString() ?? '';
+    final cfiExplanations = data['cfi_explanation']?.toString() ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -134,28 +143,60 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Stats Grid
-              LayoutBuilder(builder: (context, constraints) {
-                final isWide = constraints.maxWidth > 600;
-                return isWide
-                    ? Row(
-                        children: [
-                          Expanded(child: StatCard(value: total, label: 'Total Interviews', icon: Icons.assessment)),
-                          const SizedBox(width: 12),
-                          Expanded(child: StatCard(value: avgTime, label: 'Avg Time (min)', icon: Icons.timer)),
-                          const SizedBox(width: 12),
-                          Expanded(child: StatCard(value: avgScore, label: 'Avg Score', icon: Icons.star)),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          StatCard(value: total, label: 'Total Interviews', icon: Icons.assessment),
-                          const SizedBox(height: 12),
-                          StatCard(value: avgTime, label: 'Avg Time (min)', icon: Icons.timer),
-                          const SizedBox(height: 12),
-                          StatCard(value: avgScore, label: 'Avg Score', icon: Icons.star),
-                        ],
-                      );
-              }),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 600;
+                  return isWide
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                value: total,
+                                label: 'Total Interviews',
+                                icon: Icons.assessment,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: StatCard(
+                                value: avgTime,
+                                label: 'Avg Time (min)',
+                                icon: Icons.timer,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: StatCard(
+                                value: avgScore,
+                                label: 'Avg Score',
+                                icon: Icons.star,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            StatCard(
+                              value: total,
+                              label: 'Total Interviews',
+                              icon: Icons.assessment,
+                            ),
+                            const SizedBox(height: 12),
+                            StatCard(
+                              value: avgTime,
+                              label: 'Avg Time (min)',
+                              icon: Icons.timer,
+                            ),
+                            const SizedBox(height: 12),
+                            StatCard(
+                              value: avgScore,
+                              label: 'Avg Score',
+                              icon: Icons.star,
+                            ),
+                          ],
+                        );
+                },
+              ),
               const SizedBox(height: 24),
 
               // Trend Chart
@@ -165,7 +206,10 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Performance Trends', style: AppTheme.titleMedium),
+                    const Text(
+                      'Performance Trends',
+                      style: AppTheme.titleMedium,
+                    ),
                     const SizedBox(height: 16),
                     SizedBox(
                       height: 220,
@@ -175,13 +219,17 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                           maxY: 100,
                           titlesData: FlTitlesData(
                             leftTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: true)),
+                              sideTitles: SideTitles(showTitles: true),
+                            ),
                             bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: true)),
+                              sideTitles: SideTitles(showTitles: true),
+                            ),
                             topTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
                             rightTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
                           ),
                           gridData: FlGridData(show: true),
                           borderData: FlBorderData(show: true),
@@ -215,7 +263,10 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _LegendItem(color: AppTheme.primaryPurple, label: 'Score'),
+                        _LegendItem(
+                          color: AppTheme.primaryPurple,
+                          label: 'Score',
+                        ),
                         const SizedBox(width: 16),
                         _LegendItem(color: Colors.orange, label: 'Confidence'),
                         const SizedBox(width: 16),
@@ -259,10 +310,10 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                         ),
                       ],
                     ),
-                    if (cfi_explanations.isNotEmpty) ...[
+                    if (cfiExplanations.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Text(
-                        cfi_explanations,
+                        cfiExplanations,
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -286,16 +337,20 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                     if (topSkills.isEmpty)
                       const Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: Text('No skills data available yet',
-                            style: AppTheme.bodySmall),
+                        child: Text(
+                          'No skills data available yet',
+                          style: AppTheme.bodySmall,
+                        ),
                       )
                     else
                       ...topSkills.map((e) {
                         final skill = e.key;
                         final score = (e.value ?? 0).toString();
                         return ListTile(
-                          leading: const Icon(Icons.star,
-                              color: AppTheme.primaryPurple),
+                          leading: const Icon(
+                            Icons.star,
+                            color: AppTheme.primaryPurple,
+                          ),
                           title: Text(skill),
                           trailing: Text(
                             score,
@@ -306,7 +361,7 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                   ],
                 ),
               ),
@@ -323,8 +378,10 @@ class _InsightsDashboardScreenState extends State<InsightsDashboardScreen> {
                     const SizedBox(height: 12),
                     ...((data['weakest_skills'] as List?) ?? []).map((w) {
                       return ListTile(
-                        leading:
-                            const Icon(Icons.trending_down, color: Colors.orange),
+                        leading: const Icon(
+                          Icons.trending_down,
+                          color: Colors.orange,
+                        ),
                         title: Text(w['skill'] ?? ''),
                         trailing: Text(
                           (w['avg'] ?? 0).toString(),

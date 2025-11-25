@@ -37,7 +37,7 @@ class FileUtil {
         final xmlDoc = XmlDocument.parse(xmlString);
         final nodes = xmlDoc.findAllElements('w:t');
         for (final node in nodes) {
-          text += node.text + ' ';
+          text += '${node.text} ';
         }
       }
     }
@@ -73,9 +73,7 @@ class FileUtil {
     return completer.future;
   }
 
-  static Future<FileResult?> fileSelector(
-      BuildContext context
-      ) async {
+  static Future<FileResult?> fileSelector(BuildContext context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -91,10 +89,10 @@ class FileUtil {
       final pickedFile = result.files.single;
       debugPrint(
         "FilePicker (web): Picked file -> "
-            "name=${pickedFile.name}, "
-            "path=${pickedFile.path}, "
-            "size=${pickedFile.size}, "
-            "bytesAvailable=${pickedFile.bytes != null}",
+        "name=${pickedFile.name}, "
+        "path=${pickedFile.path}, "
+        "size=${pickedFile.size}, "
+        "bytesAvailable=${pickedFile.bytes != null}",
       );
 
       String text = "";
@@ -112,7 +110,7 @@ class FileUtil {
           } else if (lower.endsWith('.docx')) {
             text = await readDocxFileFromBytes(bytes);
           } else {
-            text = AppLocalizations.of(context)!.unsupportedFile;
+            text = AppLocalizations.of(context).unsupportedFile;
           }
         }
         // ✅ Case 2: no bytes, fallback to DOM File
@@ -141,15 +139,15 @@ class FileUtil {
             } else if (lower.endsWith('.docx')) {
               text = await readDocxFileFromBytes(bytes);
             } else {
-              text = AppLocalizations.of(context)!.unsupportedFile;
+              text = AppLocalizations.of(context).unsupportedFile;
             }
           } else {
-            text = AppLocalizations.of(context)!.unsupportedFile;
+            text = AppLocalizations.of(context).unsupportedFile;
             debugPrint("FilePicker (web): No File object available.");
           }
         }
       } catch (e, st) {
-        text = '${AppLocalizations.of(context)!.errorReadingFile}: $e';
+        text = '${AppLocalizations.of(context).errorReadingFile}: $e';
         debugPrint("FilePicker (web): Error while reading file -> $e\n$st");
       }
 
@@ -170,17 +168,17 @@ class FileUtil {
     } catch (e, st) {
       debugPrint("FilePicker (web): Unexpected error -> $e\n$st");
     }
+    return null;
   }
 
   // === File select (web) ===
   static Future<void> selectFile(
-      BuildContext context,
-      bool isCv,
-      CvJdProvider cvJdProvider,
-      ) async {
+    BuildContext context,
+    bool isCv,
+    CvJdProvider cvJdProvider,
+  ) async {
     try {
-
-      FileResult?  fileResult = await fileSelector(context);
+      FileResult? fileResult = await fileSelector(context);
       // final result = await FilePicker.platform.pickFiles(
       //   type: FileType.custom,
       //   allowedExtensions: ['txt', 'pdf', 'docx'],
@@ -257,23 +255,24 @@ class FileUtil {
       //   debugPrint("FilePicker (web): Error while reading file -> $e\n$st");
       // }
 
-      if(fileResult!= null) {
+      if (fileResult != null) {
         var text = fileResult.text;
         // ✅ Update provider with CV/JD text
         if (isCv) {
           cvJdProvider.updateCvText(text);
           debugPrint(
-              "FilePicker (web): CV text updated (length=${text.length}).");
+            "FilePicker (web): CV text updated (length=${text.length}).",
+          );
         } else {
           cvJdProvider.updateJdText(text);
           debugPrint(
-              "FilePicker (web): JD text updated (length=${text.length}).");
+            "FilePicker (web): JD text updated (length=${text.length}).",
+          );
         }
       }
       // no cache to clear on web
     } catch (e, st) {
       debugPrint("FilePicker (web): Unexpected error -> $e\n$st");
     }
-
   }
 }

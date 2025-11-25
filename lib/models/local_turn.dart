@@ -1,9 +1,16 @@
-
 import 'package:sarvasoft_moc_interview/models/generatequestions.dart';
 
 import 'adaptive_models.dart';
 
-enum TurnStatus { pending, uploading, uploaded, processing, processed, failed,session_completed }
+enum TurnStatus {
+  pending,
+  uploading,
+  uploaded,
+  processing,
+  processed,
+  failed,
+  session_completed,
+}
 
 class LocalTurn {
   //current turn
@@ -29,9 +36,6 @@ class LocalTurn {
   DateTime createdAt;
   AnswerFeedback? answerFeedback;
 
-
-
-
   LocalTurn({
     required this.currentTurn,
     required this.interviewQuestion,
@@ -41,12 +45,9 @@ class LocalTurn {
     this.currentAnswerLocalPath,
     this.currentAnswerUrl,
     DateTime? createdAt,
-
   }) : createdAt = createdAt ?? DateTime.now();
 
-  get currentInterviewQuestion => interviewQuestion;
-
-
+  InterviewQuestion get currentInterviewQuestion => interviewQuestion;
 
   Map<String, dynamic> toJson() => {
     'turn_index': currentTurn,

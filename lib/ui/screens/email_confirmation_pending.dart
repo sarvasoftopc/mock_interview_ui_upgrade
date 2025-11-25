@@ -8,13 +8,19 @@ import 'home_screen.dart';
 class EmailConfirmationPendingScreen extends StatefulWidget {
   final String email;
   final String password;
-  const EmailConfirmationPendingScreen({required this.email, required this.password});
+  const EmailConfirmationPendingScreen({
+    super.key,
+    required this.email,
+    required this.password,
+  });
 
   @override
-  _EmailConfirmationPendingScreenState createState() => _EmailConfirmationPendingScreenState();
+  _EmailConfirmationPendingScreenState createState() =>
+      _EmailConfirmationPendingScreenState();
 }
 
-class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendingScreen> {
+class _EmailConfirmationPendingScreenState
+    extends State<EmailConfirmationPendingScreen> {
   bool _checking = false;
   String? _message;
   Color? _messageColor;
@@ -140,7 +146,9 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                     SizedBox(
                       width: double.infinity,
                       child: GradientButton(
-                        text: _checking ? 'Checking...' : 'I Confirmed — Check Now',
+                        text: _checking
+                            ? 'Checking...'
+                            : 'I Confirmed — Check Now',
                         icon: Icons.check_circle_outline,
                         isLoading: _checking,
                         onPressed: _checking ? () {} : _checkIfConfirmed,
@@ -150,7 +158,10 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                     const SizedBox(height: 12),
                     // Resend Button
                     TextButton.icon(
-                      icon: const Icon(Icons.refresh, color: AppTheme.primaryPurple),
+                      icon: const Icon(
+                        Icons.refresh,
+                        color: AppTheme.primaryPurple,
+                      ),
                       label: const Text(
                         'Resend confirmation email',
                         style: TextStyle(color: AppTheme.primaryPurple),
@@ -164,9 +175,12 @@ class _EmailConfirmationPendingScreenState extends State<EmailConfirmationPendin
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: _messageColor?.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
                           border: Border.all(
-                            color: _messageColor?.withOpacity(0.3) ?? Colors.grey,
+                            color:
+                                _messageColor?.withOpacity(0.3) ?? Colors.grey,
                           ),
                         ),
                         child: Text(

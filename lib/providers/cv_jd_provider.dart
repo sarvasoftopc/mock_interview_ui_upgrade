@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:sarvasoft_moc_interview/models/generatequestions.dart';
+import 'package:sarvasoft_moc_interview/models/roles.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 
 import '../models/analysis.dart';
@@ -21,23 +22,24 @@ class CvJdProvider extends ChangeNotifier {
   String? _type;
   List<String> _overlapSkills = [];
   List<String> _missingSkills = [];
-  List<Map<String, dynamic>> _templates = [];
+  final List<Map<String, dynamic>> _templates = [];
   bool _loading = false;
   String? _error;
   bool _analysisDone = false;
-  bool _questionsGenerated=false;
+  final bool _questionsGenerated = false;
 
-  List<String> _jdSkills = [];
+  final List<String> _jdSkills = [];
 
   List<String> _additonalSkills = [];
 
-  String _matchScore="";
+  String _matchScore = "";
 
   String _summary = "";
-
-  String _sessionId ="";
+  List<RoleModel> _roles = [];
+  bool rolesLoaded = false;
+  String _sessionId = "";
   Analysis _analysis = Analysis.empty();
-  String get type => _type??'cv/skills';
+  String get type => _type ?? 'cv/skills';
   String get cvText => _cvText;
   String get jdText => _jdText;
   String get summary => _summary;
@@ -54,36 +56,40 @@ class CvJdProvider extends ChangeNotifier {
   List<String> get jdSkills => _jdSkills;
   List<String> get additonalSkills => _additonalSkills;
 
-  get matchScore => _matchScore;
+  String get matchScore => _matchScore;
 
-  get interviewsCompleted => null;
+  Null get interviewsCompleted => null;
 
-  get averageScore => null;
+  Null get averageScore => null;
 
-  get practiceHours => null;
+  Null get practiceHours => null;
 
-  get analysesPerformed => null;
+  Null get analysesPerformed => null;
 
-  set overlapSkills(List<String> value){
-    _overlapSkills  = value;
-  }
-  set missingSkills(List<String> value){
-    _missingSkills  = value;
-  }
+  List<RoleModel> get roles => _roles;
 
-  set type(String value){
-    _type  = value;
+  set overlapSkills(List<String> value) {
+    _overlapSkills = value;
   }
 
-  set summary(String value){
+  set missingSkills(List<String> value) {
+    _missingSkills = value;
+  }
+
+  set type(String value) {
+    _type = value;
+  }
+
+  set summary(String value) {
     _summary = value;
   }
-  set additonalSkills(List<String> value){
-    _additonalSkills  = value;
+
+  set additonalSkills(List<String> value) {
+    _additonalSkills = value;
   }
 
-  set analysis(Analysis value){
-    _analysis  = value;
+  set analysis(Analysis value) {
+    _analysis = value;
   }
 
   // setters
@@ -91,7 +97,7 @@ class CvJdProvider extends ChangeNotifier {
     _questions = value;
   }
 
-  set matchedScore(String value){
+  set matchedScore(String value) {
     _matchScore = value;
   }
 
@@ -99,16 +105,18 @@ class CvJdProvider extends ChangeNotifier {
     _error = value;
   }
 
-  set sessionId(String value){
+  set sessionId(String value) {
     _sessionId = value;
   }
 
-  set loading(bool value){
+  set loading(bool value) {
     _loading = value;
   }
+
   set analysisDone(bool value) {
     _analysisDone = value;
   }
+
   void updateCvText(String text) {
     _cvText = text;
     _error = null;
@@ -123,14 +131,14 @@ class CvJdProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> extractSkillsAndFetchQuestions() async {
     _loading = true;
     _error = null;
     notifyListeners();
     try {
-
-      final response = await api.generateQuestionsFromSkills(analysis: _analysis);
+      final response = await api.generateQuestionsFromSkills(
+        analysis: _analysis,
+      );
       if (response != null) {
         _sessionId = response.sessionId;
         _questions = response.questions;
@@ -138,7 +146,7 @@ class CvJdProvider extends ChangeNotifier {
         _analysisDone = true;
         _error = null;
       }
-    } on AuthException catch (exception) {
+    } on AuthException {
       _error = 'Session Expired! Please Login Again.';
       _questions = [];
       // You can call AuthProvider.signOut() here via context
@@ -158,7 +166,7 @@ class CvJdProvider extends ChangeNotifier {
     required bool includeBehavioral,
     required String mode,
     String? role,
-  }) async{
+  }) async {
     final body = {
       "mode": mode,
       "skills": skills,
@@ -168,7 +176,7 @@ class CvJdProvider extends ChangeNotifier {
       if (role != null) "role": role,
     };
 
-   final response = await api.startSkillBasedSessoin(jsonEncode(body));
+    final response = await api.startSkillBasedSessoin(jsonEncode(body));
     if (response != null) {
       _type = response.sessionType;
       _sessionId = response.sessionId;
@@ -176,8 +184,8 @@ class CvJdProvider extends ChangeNotifier {
       _analysisDone = true;
       _error = null;
     }
+    return null;
   }
-
 
   void clear() {
     _cvText = '';
@@ -196,10 +204,7 @@ class CvJdProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await api.getSkillSummary(
-        _cvText,
-        _jdText,
-      );
+      final response = await api.getSkillSummary(_cvText, _jdText);
       if (response != null) {
         _sessionId = response.sessionId;
         _analysis = response.analysis;
@@ -208,11 +213,11 @@ class CvJdProvider extends ChangeNotifier {
         _additonalSkills = response.analysis.extraInCv;
         _matchScore = response.analysis.matchScorePercent.toString();
         _summary = response.analysis.summary;
-        _type  = response.sessionType;
+        _type = response.sessionType;
         _analysisDone = true;
         _error = null;
       }
-    } on AuthException catch (exception) {
+    } on AuthException {
       _error = 'Session Expired! Please Login Again.';
       _questions = [];
       // You can call AuthProvider.signOut() here via context
@@ -232,10 +237,10 @@ class CvJdProvider extends ChangeNotifier {
 
     try {
       // Api should return a Map<String,dynamic> shaped similarly to your SessionAnalysis or a DTO with fields
-      final Analysis? resp = await api.getLastCvJdAnalysis();
+      final Analysis resp = await api.getLastCvJdAnalysis();
       print("last skill analysis report recevied");
-      if(resp!=null) {
-        print("analysis response:" + resp!.sessionId);
+      if (resp != null) {
+        print("analysis response:${resp!.sessionId}");
       }
       if (resp == null) {
         // clear or leave old values
@@ -248,13 +253,13 @@ class CvJdProvider extends ChangeNotifier {
         type = "";
         questions = [];
       } else {
-        print("skill analysis receieved:" + resp.sessionId);
+        print("skill analysis receieved:${resp.sessionId}");
         analysis = resp;
         // adapt keys to what your backend returns — example below:
         overlapSkills = resp.matchedSkills;
         missingSkills = resp.missingSkills;
         additonalSkills = resp.extraInCv;
-        summary =resp.summary;
+        summary = resp.summary;
         matchedScore = resp.matchScorePercent.toString();
         sessionId = resp.sessionId;
         type = "cv/jd";
@@ -290,11 +295,16 @@ class CvJdProvider extends ChangeNotifier {
 
   // Optional: convenience to ensure analysis is available when screen opens directly
   Future<void> ensureAnalysisLoaded() async {
-    if (_analysisDone || _overlapSkills.isNotEmpty || (_matchScore != null && _matchScore != "0")) {
+    if (_analysisDone || _overlapSkills.isNotEmpty || (_matchScore != "0")) {
       // already loaded
       return;
     }
     await fetchLastAnalysis();
   }
 
+  Future<void> getRoles() async {
+    _roles = await api.fetchRoles();
+    rolesLoaded = true;
+    notifyListeners();
+  }
 }

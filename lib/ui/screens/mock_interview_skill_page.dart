@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../config/app_theme.dart';
 import 'package:sarvasoft_moc_interview/models/mock_interview_session.dart';
 
 import '../../providers/cv_jd_provider.dart';
@@ -41,19 +40,24 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
   }
 
   void _startSkillInterview(BuildContext context) async {
-
     final provider = context.read<InterviewProvider>();
     final cvJdProvider = context.read<CvJdProvider>();
 
+    // fetch analysis & questions (provider handles repeated calls / caching)
+    await cvJdProvider.startSkillSession(
+      skills: _selectedSkills.toList(),
+      difficulty: _difficulty.toInt(),
+      useVoice: _useVoice,
+      includeBehavioral: _includeBehavioral,
+      role: "",
+      mode: 'skill',
+    );
 
-      // fetch analysis & questions (provider handles repeated calls / caching)
-      await cvJdProvider.startSkillSession(skills: _selectedSkills.toList(), difficulty: _difficulty.toInt(),useVoice: _useVoice,includeBehavioral: _includeBehavioral,role:"", mode: 'skill');
+    debugPrint("current session with session id:${cvJdProvider.sessionId}");
+    provider.loadQuestions(cvJdProvider.questions);
+    provider.startSession(cvJdProvider.sessionId, SessionType.normal);
 
-      debugPrint("current session with session id:${cvJdProvider.sessionId}");
-      provider.loadQuestions(cvJdProvider.questions);
-      provider.startSession(cvJdProvider.sessionId,SessionType.normal);
-
-      Navigator.of(context).pushNamed('/question');
+    Navigator.of(context).pushNamed('/question');
     //Navigator.pushNamed(context, '/mockInterview', arguments: args);
   }
 
@@ -77,8 +81,9 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = context.watch<ProfileProvider>();
-    final profileSkills =
-    (profileProvider.profile?.skills ?? []).map((e) => e.toString()).toList();
+    final profileSkills = (profileProvider.profile?.skills ?? [])
+        .map((e) => e.toString())
+        .toList();
 
     final defaultPopular = <String>[
       'Data Structures',
@@ -88,7 +93,7 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
       'React',
       'Python',
       'SQL',
-      'Testing'
+      'Testing',
     ];
 
     final isWide = MediaQuery.of(context).size.width > 860;
@@ -117,9 +122,13 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
                 children: [
                   Row(
                     children: [
-                      const Text('Your CV Skills',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 16)),
+                      const Text(
+                        'Your CV Skills',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
                       const Spacer(),
                       IconButton(
                         icon: Icon(
@@ -129,7 +138,7 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
                         ),
                         onPressed: () =>
                             setState(() => _showCvSkills = !_showCvSkills),
-                      )
+                      ),
                     ],
                   ),
                   AnimatedCrossFade(
@@ -139,8 +148,9 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
                         child: Wrap(
                           spacing: 8,
                           runSpacing: 8,
-                          children:
-                          profileSkills.map((s) => _skillChip(s)).toList(),
+                          children: profileSkills
+                              .map((s) => _skillChip(s))
+                              .toList(),
                         ),
                       ),
                     ),
@@ -158,8 +168,10 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
         const SizedBox(height: 14),
 
         // 🔹 Popular/common skills
-        const Text('Popular Skills',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+        const Text(
+          'Popular Skills',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
         const SizedBox(height: 8),
         Container(
           constraints: const BoxConstraints(maxHeight: 160),
@@ -191,8 +203,10 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  contentPadding:
-                  const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 12,
+                  ),
                 ),
               ),
             ),
@@ -204,8 +218,10 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
         // 🔹 Difficulty and options
         Row(
           children: [
-            const Text('Difficulty:',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text(
+              'Difficulty:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             Expanded(
               child: Slider(
                 value: _difficulty,
@@ -245,8 +261,10 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
         const SizedBox(height: 16),
 
         // 🔹 Selected skills summary
-        const Text('Selected Skills',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        const Text(
+          'Selected Skills',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 6),
         if (_selectedSkills.isEmpty)
           const Text('No skills selected yet.')
@@ -257,8 +275,9 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children:
-                _selectedSkills.map((s) => Chip(label: Text(s))).toList(),
+                children: _selectedSkills
+                    .map((s) => Chip(label: Text(s)))
+                    .toList(),
               ),
             ),
           ),
@@ -303,4 +322,3 @@ class _MockInterviewSkillPageState extends State<MockInterviewSkillPage> {
     );
   }
 }
-

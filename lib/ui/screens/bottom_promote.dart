@@ -8,11 +8,11 @@ class BottomPromote extends StatelessWidget {
   final VoidCallback? onUpgrade;
 
   const BottomPromote({
-    Key? key,
+    super.key,
     this.title = 'Upgrade to Premium',
     this.description = 'Unlock advanced features and unlimited interviews',
     this.onUpgrade,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +77,15 @@ class BottomPromote extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: onUpgrade ?? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Premium feature coming soon!')),
-                  );
-                },
+                onPressed:
+                    onUpgrade ??
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Premium feature coming soon!'),
+                        ),
+                      );
+                    },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: AppTheme.primaryPurple,
@@ -93,10 +97,7 @@ class BottomPromote extends StatelessWidget {
                 ),
                 child: const Text(
                   'Upgrade Now',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
             ),

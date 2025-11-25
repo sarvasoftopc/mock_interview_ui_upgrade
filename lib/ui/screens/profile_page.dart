@@ -29,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? _cvBase64;
   bool _loading = false;
 
-  get cvBase64 => _cvBase64;
+  String? get cvBase64 => _cvBase64;
   set cvBase64(value) => _cvBase64 = value;
 
   @override
@@ -75,10 +75,16 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (_) => WillPopScope(
           onWillPop: () async => false,
           child: AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
             content: Row(
               children: const [
-                SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
                 SizedBox(width: 16),
                 Expanded(child: Text('Analyzing CV — extracting skills...')),
               ],
@@ -90,7 +96,10 @@ class _ProfilePageState extends State<ProfilePage> {
       cvBase64 = result.text;
       final provider = context.read<ProfileProvider>();
       try {
-        final extractedSkills = await provider.analyzeCvText(_cvFileName!, cvBase64);
+        final extractedSkills = await provider.analyzeCvText(
+          _cvFileName!,
+          cvBase64!,
+        );
         setState(() {
           _skills = extractedSkills;
         });
@@ -101,16 +110,24 @@ class _ProfilePageState extends State<ProfilePage> {
           profile.skills = _skills;
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('CV analysis complete'), backgroundColor: AppTheme.primaryPurple),
+          const SnackBar(
+            content: Text('CV analysis complete'),
+            backgroundColor: AppTheme.primaryPurple,
+          ),
         );
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Analyze failed: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Analyze failed: $e'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } finally {
-        setState(() { _loading = false; });
+        setState(() {
+          _loading = false;
+        });
         if (mounted) Navigator.of(context, rootNavigator: true).pop();
       }
     }
@@ -123,10 +140,16 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (_) => WillPopScope(
         onWillPop: () async => false,
         child: AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
           content: Row(
             children: const [
-              SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
               SizedBox(width: 16),
               Expanded(child: Text('Saving profile...')),
             ],
@@ -134,12 +157,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
-    setState(() { _loading = true; });
+    setState(() {
+      _loading = true;
+    });
     final provider = context.read<ProfileProvider>();
     String? userId = await provider.getUserId();
-    if (userId == null) {
-      userId = "demo_user";
-    }
+    userId ??= "demo_user";
     final uid = userId;
     final years = int.tryParse(_yearsCtrl.text);
     final p = Profile(
@@ -160,7 +183,10 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile saved'), backgroundColor: AppTheme.primaryPurple),
+          const SnackBar(
+            content: Text('Profile saved'),
+            backgroundColor: AppTheme.primaryPurple,
+          ),
         );
         Navigator.pushReplacementNamed(context, '/profile');
       }
@@ -168,11 +194,16 @@ class _ProfilePageState extends State<ProfilePage> {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Save failed: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Save failed: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
-      setState(() { _loading = false; });
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
@@ -188,7 +219,9 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isWide ? 800 : double.infinity),
+            constraints: BoxConstraints(
+              maxWidth: isWide ? 800 : double.infinity,
+            ),
             child: SingleChildScrollView(
               padding: EdgeInsets.all(isWide ? 32 : 16),
               child: Card(
@@ -208,9 +241,15 @@ class _ProfilePageState extends State<ProfilePage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               gradient: AppTheme.primaryGradient,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
-                            child: const Icon(Icons.person_outline, color: Colors.white, size: 28),
+                            child: const Icon(
+                              Icons.person_outline,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           const Expanded(
@@ -224,13 +263,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 24),
 
                       // Basic Info Section
-                      _buildSectionHeader('Basic Information', Icons.info_outline),
+                      _buildSectionHeader(
+                        'Basic Information',
+                        Icons.info_outline,
+                      ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _nameCtrl,
-                        decoration: AppTheme.inputDecoration('Full Name').copyWith(
-                          prefixIcon: const Icon(Icons.person),
-                        ),
+                        decoration: AppTheme.inputDecoration(
+                          'Full Name',
+                        ).copyWith(prefixIcon: const Icon(Icons.person)),
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -243,9 +285,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _headlineCtrl,
-                        decoration: AppTheme.inputDecoration('Headline / Target Role').copyWith(
-                          prefixIcon: const Icon(Icons.work_outline),
-                        ),
+                        decoration: AppTheme.inputDecoration(
+                          'Headline / Target Role',
+                        ).copyWith(prefixIcon: const Icon(Icons.work_outline)),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -253,18 +295,26 @@ class _ProfilePageState extends State<ProfilePage> {
                           Expanded(
                             child: TextFormField(
                               controller: _locationCtrl,
-                              decoration: AppTheme.inputDecoration('Location').copyWith(
-                                prefixIcon: const Icon(Icons.location_on_outlined),
-                              ),
+                              decoration: AppTheme.inputDecoration('Location')
+                                  .copyWith(
+                                    prefixIcon: const Icon(
+                                      Icons.location_on_outlined,
+                                    ),
+                                  ),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: TextFormField(
                               controller: _yearsCtrl,
-                              decoration: AppTheme.inputDecoration('Years of Experience').copyWith(
-                                prefixIcon: const Icon(Icons.calendar_today),
-                              ),
+                              decoration:
+                                  AppTheme.inputDecoration(
+                                    'Years of Experience',
+                                  ).copyWith(
+                                    prefixIcon: const Icon(
+                                      Icons.calendar_today,
+                                    ),
+                                  ),
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -273,16 +323,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 24),
 
                       // Preferred Roles Section
-                      _buildSectionHeader('Preferred Roles', Icons.star_outline),
+                      _buildSectionHeader(
+                        'Preferred Roles',
+                        Icons.star_outline,
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             child: TextFormField(
                               controller: _roleCtrl,
-                              decoration: AppTheme.inputDecoration('Add Preferred Role').copyWith(
-                                prefixIcon: const Icon(Icons.add_circle_outline),
-                              ),
+                              decoration:
+                                  AppTheme.inputDecoration(
+                                    'Add Preferred Role',
+                                  ).copyWith(
+                                    prefixIcon: const Icon(
+                                      Icons.add_circle_outline,
+                                    ),
+                                  ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -291,7 +349,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             icon: Icons.add,
                             onPressed: () {
                               final r = _roleCtrl.text.trim();
-                              if (r.isNotEmpty && !_preferredRoles.contains(r)) {
+                              if (r.isNotEmpty &&
+                                  !_preferredRoles.contains(r)) {
                                 setState(() {
                                   _preferredRoles.add(r);
                                   _roleCtrl.clear();
@@ -323,14 +382,22 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(height: 24),
 
                       // Skills Section
-                      _buildSectionHeader('Skills & Expertise', Icons.lightbulb_outline),
+                      _buildSectionHeader(
+                        'Skills & Expertise',
+                        Icons.lightbulb_outline,
+                      ),
                       const SizedBox(height: 16),
                       Container(
                         constraints: const BoxConstraints(maxHeight: 220),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3), width: 2),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          border: Border.all(
+                            color: AppTheme.primaryPurple.withOpacity(0.3),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                           color: AppTheme.primaryLight.withOpacity(0.3),
                         ),
                         child: _skills.isEmpty
@@ -346,9 +413,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                   spacing: 8,
                                   runSpacing: 8,
                                   children: _skills.map((s) {
-                                    final selected = _selectedSkills.contains(s);
+                                    final selected = _selectedSkills.contains(
+                                      s,
+                                    );
                                     return FilterChip(
-                                      label: Text(s, overflow: TextOverflow.ellipsis),
+                                      label: Text(
+                                        s,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                       selected: selected,
                                       selectedColor: AppTheme.primaryPurple,
                                       checkmarkColor: Colors.white,
@@ -372,9 +444,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: AppTheme.inputDecoration('Add Skill Manually').copyWith(
-                                prefixIcon: const Icon(Icons.code),
-                              ),
+                              decoration: AppTheme.inputDecoration(
+                                'Add Skill Manually',
+                              ).copyWith(prefixIcon: const Icon(Icons.code)),
                               // onSubmitted: (v) {
                               //   final s = v.trim();
                               //   if (s.isEmpty) return;
@@ -389,7 +461,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(width: 8),
                           GradientButton(
-                            text: _cvFileName == null ? 'Upload CV' : 'Re-upload',
+                            text: _cvFileName == null
+                                ? 'Upload CV'
+                                : 'Re-upload',
                             icon: Icons.upload_file,
                             onPressed: _pickCvAndAnalyze,
                           ),
@@ -401,17 +475,25 @@ class _ProfilePageState extends State<ProfilePage> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
                             border: Border.all(color: Colors.green.shade200),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.check_circle, color: Colors.green.shade700, size: 20),
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.green.shade700,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'CV uploaded: $_cvFileName',
-                                  style: TextStyle(color: Colors.green.shade700),
+                                  style: TextStyle(
+                                    color: Colors.green.shade700,
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -426,7 +508,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryLight.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -440,7 +524,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             Switch(
                               value: provider.profile?.publicProfile ?? false,
-                              activeColor: AppTheme.primaryPurple,
+                              activeThumbColor: AppTheme.primaryPurple,
                               onChanged: (v) {
                                 final p = provider.profile;
                                 if (p != null) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
-import 'home_screen_v2.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 

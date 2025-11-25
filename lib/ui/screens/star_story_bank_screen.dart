@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
-import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 
 class StarStoryScreen extends StatelessWidget {
@@ -11,32 +10,34 @@ class StarStoryScreen extends StatelessWidget {
       "title": "Leadership",
       "desc": "Stories about leading teams/projects",
       "icon": Icons.leaderboard,
-      "color": Color(0xFF667EEA)
+      "color": Color(0xFF667EEA),
     },
     {
       "title": "Conflict Resolution",
       "desc": "Handling tough situations",
       "icon": Icons.handshake,
-      "color": Color(0xFFF5576C)
+      "color": Color(0xFFF5576C),
     },
     {
       "title": "Problem Solving",
       "desc": "Overcoming technical/strategic challenges",
       "icon": Icons.build,
-      "color": Color(0xFF4FACFE)
+      "color": Color(0xFF4FACFE),
     },
     {
       "title": "Achievements",
       "desc": "Highlighting impact and results",
       "icon": Icons.star,
-      "color": Color(0xFF43E97B)
+      "color": Color(0xFF43E97B),
     },
   ];
 
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 900;
-    final isTablet = MediaQuery.of(context).size.width > 600 && MediaQuery.of(context).size.width <= 900;
+    final isTablet =
+        MediaQuery.of(context).size.width > 600 &&
+        MediaQuery.of(context).size.width <= 900;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,7 +52,9 @@ class StarStoryScreen extends StatelessWidget {
         decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isWide ? 1000 : double.infinity),
+            constraints: BoxConstraints(
+              maxWidth: isWide ? 1000 : double.infinity,
+            ),
             child: GridView.builder(
               padding: EdgeInsets.all(isWide ? 32 : 16),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -86,7 +89,9 @@ class StarStoryScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: (cat['color'] as Color).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusMd,
+                            ),
                           ),
                           child: Icon(
                             cat['icon'] as IconData,

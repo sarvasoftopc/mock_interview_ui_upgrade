@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/adaptive_session_provider.dart';
 import '../../providers/profile_provider.dart';
 
 class MockInterviewAdaptivePage extends StatefulWidget {
   const MockInterviewAdaptivePage({super.key});
 
   @override
-  State<MockInterviewAdaptivePage> createState() => _MockInterviewAdaptivePageState();
+  State<MockInterviewAdaptivePage> createState() =>
+      _MockInterviewAdaptivePageState();
 }
 
 class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
@@ -19,7 +19,11 @@ class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
   bool _enableEmotionHints = true;
   String _feedbackStyle = 'Encouraging';
 
-  final List<String> _feedbackStyles = ['Encouraging', 'Neutral', 'Challenging'];
+  final List<String> _feedbackStyles = [
+    'Encouraging',
+    'Neutral',
+    'Challenging',
+  ];
   bool _showProfileSkills = true;
   final Set<String> _selectedSkills = {};
   List<String> _profileSkills = [];
@@ -37,7 +41,8 @@ class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
     try {
       await profileProvider.loadFromServer();
     } catch (_) {}
-    final skills = profileProvider.profile?.skills.map((e) => e.toString()).toList() ?? [];
+    final skills =
+        profileProvider.profile?.skills.map((e) => e.toString()).toList() ?? [];
     setState(() {
       _loadingProfile = false;
       _profileSkills = skills;
@@ -59,10 +64,14 @@ class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
       'maxQuestions': _maxQuestions,
       'feedbackStyle': _feedbackStyle,
       'skills': _selectedSkills.toList(),
-      'recordSession': _recordSession
+      'recordSession': _recordSession,
     };
 
-    Navigator.pushNamed(context, '/mockInterviewAdaptiveSession', arguments: args);
+    Navigator.pushNamed(
+      context,
+      '/mockInterviewAdaptiveSession',
+      arguments: args,
+    );
   }
 
   Widget _skillChip(String s) {
@@ -90,160 +99,207 @@ class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
       appBar: AppBar(title: const Text('AI Adaptive Interview')),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: isWide ? 48 : 16, vertical: 18),
+          padding: EdgeInsets.symmetric(
+            horizontal: isWide ? 48 : 16,
+            vertical: 18,
+          ),
           child: SingleChildScrollView(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('AI Adaptive Interview',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              const Text(
-                  'This mode dynamically adjusts difficulty and follow-up tone based on your answers and emotions. Voice is always enabled.'),
-              const SizedBox(height: 20),
-
-              // Initial difficulty
-              Row(children: [
-                const Text('Initial Difficulty:'),
-                Expanded(
-                  child: Slider(
-                    value: _initialDifficulty,
-                    min: 1,
-                    max: 3,
-                    divisions: 2,
-                    label: _initialDifficulty == 1
-                        ? 'Easy'
-                        : (_initialDifficulty == 2 ? 'Medium' : 'Hard'),
-                    onChanged: (v) => setState(() => _initialDifficulty = v),
-                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'AI Adaptive Interview',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  _initialDifficulty == 1
-                      ? 'Easy'
-                      : (_initialDifficulty == 2 ? 'Medium' : 'Hard'),
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+                const SizedBox(height: 10),
+                const Text(
+                  'This mode dynamically adjusts difficulty and follow-up tone based on your answers and emotions. Voice is always enabled.',
                 ),
-              ]),
-              const SizedBox(height: 12),
+                const SizedBox(height: 20),
 
-              // Adaptiveness level
-              Row(children: [
-                const Text('Adaptiveness:'),
-                Expanded(
-                  child: Slider(
-                    value: _adaptiveness,
-                    min: 0.3,
-                    max: 1.0,
-                    divisions: 7,
-                    label: _adaptiveness < 0.5
-                        ? 'Slow'
-                        : (_adaptiveness < 0.8 ? 'Moderate' : 'High'),
-                    onChanged: (v) => setState(() => _adaptiveness = v),
-                  ),
-                ),
-                Text(
-                  _adaptiveness < 0.5
-                      ? 'Slow'
-                      : (_adaptiveness < 0.8 ? 'Moderate' : 'High'),
-                ),
-              ]),
-
-              const SizedBox(height: 12),
-
-              // Max questions dropdown
-              Row(children: [
-                const Text('Max Questions:'),
-                const SizedBox(width: 12),
-                DropdownButton<int>(
-                  value: _maxQuestions,
-                  items: [5, 8, 10, 15]
-                      .map((n) => DropdownMenuItem(value: n, child: Text('$n')))
-                      .toList(),
-                  onChanged: (v) => setState(() => _maxQuestions = v ?? 10),
-                ),
-              ]),
-
-              const SizedBox(height: 12),
-
-              // Feedback style dropdown
-              Row(children: [
-                const Text('Feedback Style:'),
-                const SizedBox(width: 16),
-                DropdownButton<String>(
-                  value: _feedbackStyle,
-                  items: _feedbackStyles
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                      .toList(),
-                  onChanged: (v) => setState(() => _feedbackStyle = v ?? 'Encouraging'),
-                ),
-              ]),
-
-              const SizedBox(height: 12),
-
-              // Switches
-              Row(children: [
-                Switch(
-                  value: _recordSession,
-                  onChanged: (v) => setState(() => _recordSession = v),
-                ),
-                const Text('Record Session'),
-                const Spacer(),
-                Switch(
-                  value: _enableEmotionHints,
-                  onChanged: (v) => setState(() => _enableEmotionHints = v),
-                ),
-                const Text('Emotion Hints'),
-              ]),
-
-              const SizedBox(height: 20),
-
-              // Skills from profile
-              Card(
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      const Text('Your Profile Skills',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                      const Spacer(),
-                      if (_loadingProfile)
-                        const SizedBox(
-                            width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                      IconButton(
-                        icon: Icon(_showProfileSkills
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down),
-                        onPressed: () =>
-                            setState(() => _showProfileSkills = !_showProfileSkills),
+                // Initial difficulty
+                Row(
+                  children: [
+                    const Text('Initial Difficulty:'),
+                    Expanded(
+                      child: Slider(
+                        value: _initialDifficulty,
+                        min: 1,
+                        max: 3,
+                        divisions: 2,
+                        label: _initialDifficulty == 1
+                            ? 'Easy'
+                            : (_initialDifficulty == 2 ? 'Medium' : 'Hard'),
+                        onChanged: (v) =>
+                            setState(() => _initialDifficulty = v),
                       ),
-                    ]),
-                    AnimatedCrossFade(
-                      firstChild: _buildSkillSection(),
-                      secondChild: const SizedBox.shrink(),
-                      crossFadeState: _showProfileSkills
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                      duration: const Duration(milliseconds: 250),
                     ),
-                  ]),
+                    Text(
+                      _initialDifficulty == 1
+                          ? 'Easy'
+                          : (_initialDifficulty == 2 ? 'Medium' : 'Hard'),
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 12),
 
-              const SizedBox(height: 24),
+                // Adaptiveness level
+                Row(
+                  children: [
+                    const Text('Adaptiveness:'),
+                    Expanded(
+                      child: Slider(
+                        value: _adaptiveness,
+                        min: 0.3,
+                        max: 1.0,
+                        divisions: 7,
+                        label: _adaptiveness < 0.5
+                            ? 'Slow'
+                            : (_adaptiveness < 0.8 ? 'Moderate' : 'High'),
+                        onChanged: (v) => setState(() => _adaptiveness = v),
+                      ),
+                    ),
+                    Text(
+                      _adaptiveness < 0.5
+                          ? 'Slow'
+                          : (_adaptiveness < 0.8 ? 'Moderate' : 'High'),
+                    ),
+                  ],
+                ),
 
-              // Start button
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _selectedSkills.isEmpty
-                      ? null
-                      : () => _startAdaptiveInterview(context),
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                    child: Text('Start Adaptive Interview'),
+                const SizedBox(height: 12),
+
+                // Max questions dropdown
+                Row(
+                  children: [
+                    const Text('Max Questions:'),
+                    const SizedBox(width: 12),
+                    DropdownButton<int>(
+                      value: _maxQuestions,
+                      items: [5, 8, 10, 15]
+                          .map(
+                            (n) =>
+                                DropdownMenuItem(value: n, child: Text('$n')),
+                          )
+                          .toList(),
+                      onChanged: (v) => setState(() => _maxQuestions = v ?? 10),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Feedback style dropdown
+                Row(
+                  children: [
+                    const Text('Feedback Style:'),
+                    const SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: _feedbackStyle,
+                      items: _feedbackStyles
+                          .map(
+                            (s) => DropdownMenuItem(value: s, child: Text(s)),
+                          )
+                          .toList(),
+                      onChanged: (v) =>
+                          setState(() => _feedbackStyle = v ?? 'Encouraging'),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Switches
+                Row(
+                  children: [
+                    Switch(
+                      value: _recordSession,
+                      onChanged: (v) => setState(() => _recordSession = v),
+                    ),
+                    const Text('Record Session'),
+                    const Spacer(),
+                    Switch(
+                      value: _enableEmotionHints,
+                      onChanged: (v) => setState(() => _enableEmotionHints = v),
+                    ),
+                    const Text('Emotion Hints'),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Skills from profile
+                Card(
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              'Your Profile Skills',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (_loadingProfile)
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                _showProfileSkills
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                              ),
+                              onPressed: () => setState(
+                                () => _showProfileSkills = !_showProfileSkills,
+                              ),
+                            ),
+                          ],
+                        ),
+                        AnimatedCrossFade(
+                          firstChild: _buildSkillSection(),
+                          secondChild: const SizedBox.shrink(),
+                          crossFadeState: _showProfileSkills
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          duration: const Duration(milliseconds: 250),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ]),
+
+                const SizedBox(height: 24),
+
+                // Start button
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectedSkills.isEmpty
+                        ? null
+                        : () => _startAdaptiveInterview(context),
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
+                      ),
+                      child: Text('Start Adaptive Interview'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -260,7 +316,9 @@ class _MockInterviewAdaptivePageState extends State<MockInterviewAdaptivePage> {
     if (_profileSkills.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(12),
-        child: Text('No skills found in your profile. Upload CV to extract them.'),
+        child: Text(
+          'No skills found in your profile. Upload CV to extract them.',
+        ),
       );
     }
     return Container(

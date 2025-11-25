@@ -11,14 +11,14 @@ class ModernButton extends StatelessWidget {
   final bool isFullWidth;
 
   const ModernButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.isLoading = false,
     this.icon,
     this.isPrimary = true,
     this.isFullWidth = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,10 @@ class ModernButton extends StatelessWidget {
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(text, style: AppTheme.labelLarge.copyWith(color: Colors.white)),
+              Text(
+                text,
+                style: AppTheme.labelLarge.copyWith(color: Colors.white),
+              ),
             ],
           );
 
@@ -84,12 +87,12 @@ class ModernCard extends StatefulWidget {
   final bool isHoverable;
 
   const ModernCard({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.padding,
     this.isHoverable = true,
-  }) : super(key: key);
+  });
 
   @override
   State<ModernCard> createState() => _ModernCardState();
@@ -128,14 +131,14 @@ class StatsCard extends StatelessWidget {
   final bool isPositiveTrend;
 
   const StatsCard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.icon,
     this.color,
     this.trend,
     this.isPositiveTrend = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +162,10 @@ class StatsCard extends StatelessWidget {
               ),
               if (trend != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isPositiveTrend
                         ? AppTheme.success.withOpacity(0.1)
@@ -170,15 +176,21 @@ class StatsCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        isPositiveTrend ? Icons.trending_up : Icons.trending_down,
+                        isPositiveTrend
+                            ? Icons.trending_up
+                            : Icons.trending_down,
                         size: 14,
-                        color: isPositiveTrend ? AppTheme.success : AppTheme.error,
+                        color: isPositiveTrend
+                            ? AppTheme.success
+                            : AppTheme.error,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         trend!,
                         style: AppTheme.labelSmall.copyWith(
-                          color: isPositiveTrend ? AppTheme.success : AppTheme.error,
+                          color: isPositiveTrend
+                              ? AppTheme.success
+                              : AppTheme.error,
                         ),
                       ),
                     ],
@@ -204,12 +216,12 @@ class ModernProgressBar extends StatelessWidget {
   final Color? backgroundColor;
 
   const ModernProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     this.height = 8,
     this.color,
     this.backgroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -253,12 +265,12 @@ class ModernBadge extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const ModernBadge({
-    Key? key,
+    super.key,
     required this.label,
     this.color,
     this.icon,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -304,13 +316,13 @@ class EmptyState extends StatelessWidget {
   final VoidCallback? onAction;
 
   const EmptyState({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
     this.actionText,
     this.onAction,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +345,11 @@ class EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppTheme.space6),
-            Text(title, style: AppTheme.headlineSmall, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: AppTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: AppTheme.space3),
             Text(
               description,
@@ -363,11 +379,11 @@ class SectionHeader extends StatelessWidget {
   final Widget? action;
 
   const SectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.action,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -401,11 +417,11 @@ class LoadingOverlay extends StatelessWidget {
   final String? message;
 
   const LoadingOverlay({
-    Key? key,
+    super.key,
     required this.isLoading,
     required this.child,
     this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

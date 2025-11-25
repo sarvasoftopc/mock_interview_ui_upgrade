@@ -32,9 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     await auth.signIn(_emailController.text.trim(), _passwordController.text);
 
     if (auth.isLoggedIn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login successful')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login successful')));
 
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -47,15 +47,16 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'Failed to load profile: profile not found, please create one!')),
+            content: Text(
+              'Failed to load profile: profile not found, please create one!',
+            ),
+          ),
         );
         Navigator.pushReplacementNamed(context, '/createProfile');
         return;
       }
       var userProfile = provider.profile;
       if (userProfile == null ||
-          userProfile.userId == null ||
           userProfile.fullName == null ||
           userProfile.userId.isEmpty ||
           userProfile.fullName!.isEmpty) {
@@ -88,7 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
               if (isWide)
                 Expanded(
                   child: Container(
-                    decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
+                    decoration: const BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(48.0),
                       child: Column(
@@ -106,23 +109,41 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: 12),
                           const Text(
                             "AI-driven Mock Interview Platform",
-                            style: TextStyle(color: Colors.white70, fontSize: 18),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 18,
+                            ),
                           ),
                           const SizedBox(height: 40),
                           Wrap(
                             spacing: 12,
                             runSpacing: 12,
                             children: const [
-                              _FeatureChip(icon: Icons.mic, label: 'Voice Interviews'),
-                              _FeatureChip(icon: Icons.psychology_alt, label: 'AI Adaptive'),
-                              _FeatureChip(icon: Icons.group, label: 'Panel Mode'),
-                              _FeatureChip(icon: Icons.analytics, label: 'Insights'),
+                              _FeatureChip(
+                                icon: Icons.mic,
+                                label: 'Voice Interviews',
+                              ),
+                              _FeatureChip(
+                                icon: Icons.psychology_alt,
+                                label: 'AI Adaptive',
+                              ),
+                              _FeatureChip(
+                                icon: Icons.group,
+                                label: 'Panel Mode',
+                              ),
+                              _FeatureChip(
+                                icon: Icons.analytics,
+                                label: 'Insights',
+                              ),
                             ],
                           ),
                           const SizedBox(height: 40),
                           const Text(
                             "SarvaSoft (OPC) Private Limited",
-                            style: TextStyle(color: Colors.white60, fontSize: 14),
+                            style: TextStyle(
+                              color: Colors.white60,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
@@ -132,7 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Expanded(
                 flex: isWide ? 1 : 2,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 48,
+                  ),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 400),
@@ -156,7 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const Text(
                                     "AI-driven Mock Interview Platform",
                                     style: TextStyle(
-                                        color: AppTheme.textSecondary, fontSize: 14),
+                                      color: AppTheme.textSecondary,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                   const SizedBox(height: 28),
                                 ],
@@ -164,8 +190,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              decoration: AppTheme.inputDecoration('Email Address')
-                                  .copyWith(prefixIcon: const Icon(Icons.email_outlined)),
+                              decoration:
+                                  AppTheme.inputDecoration(
+                                    'Email Address',
+                                  ).copyWith(
+                                    prefixIcon: const Icon(
+                                      Icons.email_outlined,
+                                    ),
+                                  ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
@@ -180,19 +212,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
-                              decoration: AppTheme.inputDecoration('Password').copyWith(
-                                prefixIcon: const Icon(Icons.lock_outline),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
+                              decoration: AppTheme.inputDecoration('Password')
+                                  .copyWith(
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                      onPressed: () {
+                                        setState(
+                                          () => _obscurePassword =
+                                              !_obscurePassword,
+                                        );
+                                      },
+                                    ),
                                   ),
-                                  onPressed: () {
-                                    setState(() => _obscurePassword = !_obscurePassword);
-                                  },
-                                ),
-                              ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your password';
@@ -214,8 +250,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
-                                onPressed: () =>
-                                    Navigator.pushNamed(context, '/forgotPassword'),
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  '/forgotPassword',
+                                ),
                                 child: const Text('Forgot Password?'),
                               ),
                             ),
@@ -225,7 +263,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               children: [
                                 const Text("Don't have an account? "),
                                 GestureDetector(
-                                  onTap: () => Navigator.pushNamed(context, '/signup'),
+                                  onTap: () =>
+                                      Navigator.pushNamed(context, '/signup'),
                                   child: const Text(
                                     'Sign Up',
                                     style: TextStyle(

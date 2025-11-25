@@ -8,6 +8,7 @@ import '../models/session_analysis.dart';
 import '../services/api_service.dart';
 import 'cv_jd_provider.dart';
 import 'interview_provider.dart';
+
 /// A provider that holds the list of sessions (completed + in-progress) and
 /// caches session details (analysis) returned by backend.
 class SessionProvider extends ChangeNotifier {
@@ -52,7 +53,8 @@ class SessionProvider extends ChangeNotifier {
     }
   }
 
-  SessionAnalysis? getAnalysisFor(String sessionId) => _analysisCache[sessionId];
+  SessionAnalysis? getAnalysisFor(String sessionId) =>
+      _analysisCache[sessionId];
 
   Map<String, dynamic>? getRawFor(String sessionId) => _rawCache[sessionId];
 
@@ -102,14 +104,17 @@ class SessionProvider extends ChangeNotifier {
   }
 
   // ---------- Pull fresh details from backend (on SessionDetail screen open) ----------
-  Future<SessionAnalysis?> fetchSessionDetails(String sessionId,String sessionType) async {
+  Future<SessionAnalysis?> fetchSessionDetails(
+    String sessionId,
+    String sessionType,
+  ) async {
     // if cached, return quickly
     if (_analysisCache.containsKey(sessionId)) return _analysisCache[sessionId];
 
-    if(sessionType == "skills/adaptive"){
+    if (sessionType == "skills/adaptive") {
       try {
-        final Map<String, dynamic>? payload = await api.fetchAdaptiveInterviewSummary(
-            sessionId);
+        final Map<String, dynamic>? payload = await api
+            .fetchAdaptiveInterviewSummary(sessionId);
         if (payload == null) return null;
 
         // payload expected to be backend top-level response {status, session_id, analysis: {...}}
@@ -124,11 +129,11 @@ class SessionProvider extends ChangeNotifier {
         debugPrint('[SessionProvider] fetchSessionDetails error: $e\n$st');
         return null;
       }
-    }
-    else {
+    } else {
       try {
         final Map<String, dynamic>? payload = await api.fetchSessionDetails(
-            sessionId);
+          sessionId,
+        );
         if (payload == null) return null;
 
         // payload expected to be backend top-level response {status, session_id, analysis: {...}}
@@ -161,14 +166,18 @@ class SessionProvider extends ChangeNotifier {
   ///     - If user chooses Continue -> call ApiService.getSession(sessionId) to fetch pending questions
   ///       then navigate to question screen with the returned payload.
   ///     - If user cancels -> dismiss bottom sheet and return.
-  Future<void> openSession(BuildContext context, String sessionId, String? sessionType) async {
+  Future<void> openSession(
+    BuildContext context,
+    String sessionId,
+    String? sessionType,
+  ) async {
     print("Getting session with id:$sessionId");
     final session = getSessionById(sessionId);
     if (session == null) {
       print("session not found");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Session not found')));
       return;
     }
 
@@ -178,7 +187,10 @@ class SessionProvider extends ChangeNotifier {
       try {
         // Optionally show a quick loader while fetching
         _showBlockingLoader(context, message: 'Loading session details...');
-        final SessionAnalysis? analysis = await fetchSessionDetails(sessionId,sessionType!);
+        final SessionAnalysis? analysis = await fetchSessionDetails(
+          sessionId,
+          sessionType!,
+        );
         Navigator.of(context).pop(); // remove loader
         if (analysis == null) {
           print("session analysis not found");
@@ -191,10 +203,7 @@ class SessionProvider extends ChangeNotifier {
         Navigator.pushNamed(
           context,
           '/sessionDetail',
-          arguments: {
-            'sessionId': sessionId,
-            'sessionType': sessionType,
-          },
+          arguments: {'sessionId': sessionId, 'sessionType': sessionType},
         );
 
         return;
@@ -217,12 +226,18 @@ class SessionProvider extends ChangeNotifier {
 
       // user chose to continue -> fetch session (questions) then navigate to question screen
       try {
-        _showBlockingLoader(context, message: 'Preparing your mock interview...');
-        final GenerateQuestionsResponse? qsResp = await api.getpendingMockInterviewForSession(sessionId);
+        _showBlockingLoader(
+          context,
+          message: 'Preparing your mock interview...',
+        );
+        final GenerateQuestionsResponse? qsResp = await api
+            .getpendingMockInterviewForSession(sessionId);
         if (qsResp == null) {
           done = false;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No questions available for this session')),
+            const SnackBar(
+              content: Text('No questions available for this session'),
+            ),
           );
           return;
         }
@@ -231,15 +246,13 @@ class SessionProvider extends ChangeNotifier {
 
         final cvJdProvider = context.read<CvJdProvider>();
 
-        if (qsResp != null) {
-          cvJdProvider.sessionId = qsResp.sessionId;
-          cvJdProvider.questions = qsResp.questions;
-          cvJdProvider.analysisDone = true;
-          cvJdProvider.error = null;
-        }
+        cvJdProvider.sessionId = qsResp.sessionId;
+        cvJdProvider.questions = qsResp.questions;
+        cvJdProvider.analysisDone = true;
+        cvJdProvider.error = null;
         print("current session with session id:${cvJdProvider.sessionId}");
         provider.loadQuestions(cvJdProvider.questions);
-        provider.startSession(cvJdProvider.sessionId,SessionType.normal);
+        provider.startSession(cvJdProvider.sessionId, SessionType.normal);
         done = true;
       } catch (e, st) {
         Navigator.of(context).pop(); // remove loader if shown
@@ -249,8 +262,7 @@ class SessionProvider extends ChangeNotifier {
           const SnackBar(content: Text('Failed to load questions. Try again.')),
         );
         return;
-      }
-      finally {
+      } finally {
         // Always remove loader if it was shown. Use rootNavigator to match showDialog.
         try {
           Navigator.of(context, rootNavigator: true).pop();
@@ -259,7 +271,7 @@ class SessionProvider extends ChangeNotifier {
         }
       }
       // Navigate to your question screen. Pass sessionId and payload (adapt argument keys to your question screen).
-      if(done) {
+      if (done) {
         Navigator.of(context).pushNamed('/question');
       }
     }
@@ -274,28 +286,36 @@ class SessionProvider extends ChangeNotifier {
       builder: (ctx) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const SizedBox(height: 8),
-            const Text(
-              'Incomplete session',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const Text('This mock interview is incomplete. Do you want to continue the interview now?'),
-            const SizedBox(height: 18),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: const Text('Cancel'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              const Text(
+                'Incomplete session',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: const Text('Continue'),
+              const SizedBox(height: 12),
+              const Text(
+                'This mock interview is incomplete. Do you want to continue the interview now?',
               ),
-            ]),
-            const SizedBox(height: 8),
-          ]),
+              const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Continue'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         );
       },
     );
@@ -306,7 +326,7 @@ class SessionProvider extends ChangeNotifier {
   void _showBlockingLoader(BuildContext context, {String? message}) {
     showDialog(
       context: context,
-      useRootNavigator: true,            // <--- add this
+      useRootNavigator: true, // <--- add this
       barrierDismissible: false,
       builder: (ctx) => WillPopScope(
         onWillPop: () async => false,
@@ -320,7 +340,7 @@ class SessionProvider extends ChangeNotifier {
               if (message != null) ...[
                 const SizedBox(height: 12),
                 Text(message, style: const TextStyle(color: Colors.white)),
-              ]
+              ],
             ],
           ),
         ),
@@ -328,10 +348,10 @@ class SessionProvider extends ChangeNotifier {
     );
   }
 
-  Future<Map<String, dynamic>> getSessionCoaching(String sessionId, String sessionType) async {
-    return await api.getCoachingForSession(sessionId,sessionType);
-
+  Future<Map<String, dynamic>> getSessionCoaching(
+    String sessionId,
+    String sessionType,
+  ) async {
+    return await api.getCoachingForSession(sessionId, sessionType);
   }
-
 }
-

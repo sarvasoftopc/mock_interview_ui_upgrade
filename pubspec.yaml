@@ -59,6 +59,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   supabase_auth_ui: ^0.5.5
   json_annotation: ^4.9.0
+  camera: ^0.11.3
+  flutter_webrtc: ^1.2.1
+  video_player: ^2.7.0
 
 dev_dependencies:
   json_serializable: ^6.11.1

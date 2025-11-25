@@ -10,6 +10,7 @@ Answer _$AnswerFromJson(Map<String, dynamic> json) => Answer(
   questionId: json['questionId'] as String,
   transcript: json['transcript'] as String?,
   audioPath: json['audioPath'] as String? ?? "",
+  videoPath: json['videoPath'] as String?,
   timestamp: json['timestamp'] as String?,
 );
 
@@ -17,5 +18,6 @@ Map<String, dynamic> _$AnswerToJson(Answer instance) => <String, dynamic>{
   'questionId': instance.questionId,
   'transcript': instance.transcript,
   'audioPath': instance.audioPath,
+  'videoPath': instance.videoPath,
   'timestamp': instance.timestamp,
 };

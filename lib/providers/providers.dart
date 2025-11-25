@@ -4,6 +4,7 @@ import 'package:sarvasoft_moc_interview/providers/adaptive_session_provider.dart
 import 'package:sarvasoft_moc_interview/providers/cv_jd_provider.dart';
 import 'package:sarvasoft_moc_interview/providers/profile_provider.dart';
 import 'package:sarvasoft_moc_interview/providers/session_provider.dart';
+import 'package:sarvasoft_moc_interview/services/video_service.dart';
 
 import '../services/api_service.dart';
 import '../services/audio_service.dart';
@@ -28,6 +29,7 @@ class Providers {
         Provider<FileService>(create: (_) => FileService()),
         Provider<TtsService>(create: (_) => TtsService()),
         Provider<SttService>(create: (_) => SttService()),
+    Provider<VideoService>(create: (_) => VideoService()),
        // CvJdProvider depends on ApiService
         ChangeNotifierProvider(
           create: (ctx) => CvJdProvider(api: ctx.read<ApiService>()),
@@ -42,6 +44,7 @@ class Providers {
           create: (ctx) => InterviewProvider(
             api: ctx.read<ApiService>(),
             audio: ctx.read<AudioService>(),
+            video: ctx.read<VideoService>()
           ),
         ),
     //session provider
@@ -55,6 +58,7 @@ class Providers {
         authService: ctx.read<AuthProvider>().authService,
           audio: ctx.read<AudioService>(), api:
         ctx.read<ApiService>()),
+
 
 
         ),

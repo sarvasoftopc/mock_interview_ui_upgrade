@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../providers/session_provider.dart';
-import '../../widgets/modern_widgets.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/custom_app_bar.dart';
 
@@ -72,10 +71,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
                             color: AppTheme.textLight,
                           ),
                           SizedBox(height: 16),
-                          Text(
-                            'No sessions found',
-                            style: AppTheme.bodyLarge,
-                          ),
+                          Text('No sessions found', style: AppTheme.bodyLarge),
                           SizedBox(height: 8),
                           Text(
                             'Start your first interview to see results here',
@@ -90,7 +86,9 @@ class _SessionsScreenState extends State<SessionsScreen> {
 
               return Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: isWide ? 1000 : double.infinity),
+                  constraints: BoxConstraints(
+                    maxWidth: isWide ? 1000 : double.infinity,
+                  ),
                   child: ListView.separated(
                     padding: EdgeInsets.all(isWide ? 24 : 16),
                     itemCount: sessions.length,
@@ -99,7 +97,9 @@ class _SessionsScreenState extends State<SessionsScreen> {
                       final s = sessions[i];
 
                       return InkWell(
-                        onTap: () => context.read<SessionProvider>().openSession(context, s.id, s.sessionType),
+                        onTap: () => context
+                            .read<SessionProvider>()
+                            .openSession(context, s.id, s.sessionType),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                         child: Container(
                           decoration: AppTheme.cardDecoration,
@@ -114,14 +114,22 @@ class _SessionsScreenState extends State<SessionsScreen> {
                                   shape: BoxShape.circle,
                                   gradient: s.completed
                                       ? const LinearGradient(
-                                          colors: [Colors.green, Colors.lightGreen],
+                                          colors: [
+                                            Colors.green,
+                                            Colors.lightGreen,
+                                          ],
                                         )
                                       : LinearGradient(
-                                          colors: [Colors.orange.shade400, Colors.orange.shade600],
+                                          colors: [
+                                            Colors.orange.shade400,
+                                            Colors.orange.shade600,
+                                          ],
                                         ),
                                 ),
                                 child: Icon(
-                                  s.completed ? Icons.check_circle : Icons.pending_actions,
+                                  s.completed
+                                      ? Icons.check_circle
+                                      : Icons.pending_actions,
                                   color: Colors.white,
                                   size: 28,
                                 ),
@@ -134,7 +142,9 @@ class _SessionsScreenState extends State<SessionsScreen> {
                                   children: [
                                     Text(
                                       s.sessionType!,
-                                      style: AppTheme.titleMedium.copyWith(fontSize: 18),
+                                      style: AppTheme.titleMedium.copyWith(
+                                        fontSize: 18,
+                                      ),
                                     ),
                                     const SizedBox(height: 4),
                                     Row(
@@ -157,10 +167,15 @@ class _SessionsScreenState extends State<SessionsScreen> {
                               // Score or Chevron
                               if (s.completed)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
                                     gradient: AppTheme.primaryGradient,
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusSm,
+                                    ),
                                   ),
                                   child: Text(
                                     s.score?.toStringAsFixed(1) ?? '-',
